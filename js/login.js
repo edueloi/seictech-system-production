@@ -8,7 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const yearSpan = document.getElementById('year');
     const notificationContainer = document.getElementById('notification-container');
 
-    // --- NOVA FUNÇÃO PARA EXIBIR NOTIFICAÇÕES ---
+    // --- NOVOS ELEMENTOS PARA RECUPERAÇÃO DE SENHA ---
+    const recoveryForm = document.getElementById('recoveryForm');
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const backToLoginLink = document.getElementById('backToLoginLink');
+
+    // --- FUNÇÃO PARA EXIBIR NOTIFICAÇÕES (Toast) ---
     function showNotification(message, type = 'success') {
         const toast = document.createElement('div');
         toast.classList.add('toast', type);
@@ -24,11 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Define um tempo para a notificação desaparecer
         setTimeout(() => {
             toast.classList.add('exiting');
-            // Espera a animação de saída terminar para remover o elemento
             toast.addEventListener('animationend', () => {
                 toast.remove();
             });
-        }, 3000); // A notificação some após 3 segundos
+        }, 3000);
     }
 
     // --- LÓGICAS DA PÁGINA ---
@@ -58,31 +62,69 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Manipulação do envio do formulário
+    // Manipulação do envio do formulário de LOGIN
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            // Validação simples
             if (!emailInput.value || !passwordInput.value) {
-                // USA A NOVA NOTIFICAÇÃO DE ERRO
                 showNotification('Por favor, preencha e-mail e senha.', 'error');
                 return;
             }
 
-            // Funcionalidade "Salvar login"
             if (rememberCheckbox.checked) {
                 localStorage.setItem('rememberedEmail', emailInput.value);
             } else {
                 localStorage.removeItem('rememberedEmail');
             }
             
-            // USA A NOVA NOTIFICAÇÃO DE SUCESSO
             showNotification('Login bem-sucedido! Redirecionando...');
             sessionStorage.setItem('isLoggedIn', 'true');
             
-            // REDIRECIONAMENTO IMEDIATO
             window.location.href = '../index.html';
+        });
+    }
+    
+    // --- LÓGICA PARA TROCAR ENTRE FORMULÁRIOS ---
+
+    // Quando clicar em "Esqueci minha senha"
+    if (forgotPasswordLink) {
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            recoveryForm.classList.remove('hidden');
+        });
+    }
+
+    // Quando clicar em "Voltar para o login"
+    if (backToLoginLink) {
+        backToLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            recoveryForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        });
+    }
+
+    // Manipulação do envio do formulário de RECUPERAÇÃO
+    if (recoveryForm) {
+        recoveryForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const recoveryEmailInput = document.getElementById('recovery-email');
+
+            if (!recoveryEmailInput.value) {
+                showNotification('Por favor, digite um e-mail.', 'error');
+                return;
+            }
+
+            // Exibe a mensagem de sucesso
+            showNotification('Um e-mail com instruções para recuperar sua senha foi enviado.');
+
+            // Opcional: Volta para a tela de login após a mensagem
+            setTimeout(() => {
+                recoveryForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                recoveryEmailInput.value = ''; // Limpa o campo
+            }, 3500);
         });
     }
 });

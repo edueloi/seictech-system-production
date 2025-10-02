@@ -22,27 +22,7 @@ if (collapseBtn && sidebar && mainContent) {
 }
 
 // Elementos do DOM
-const authContainer = document.getElementById("auth-container");
 const dashboardContainer = document.getElementById("dashboard-container");
-
-const loginFormEl = document.getElementById("login-form");
-const registerFormEl = document.getElementById("register-form");
-const recoverFormEl = document.getElementById("recover-form");
-
-const showRegisterLink = document.getElementById("show-register");
-const showLoginLink = document.getElementById("show-login");
-const forgotPasswordLink = document.getElementById("forgot-password-link");
-const showLoginFromRecoverLink = document.getElementById(
-  "show-login-from-recover"
-);
-
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
-const recoverForm = document.getElementById("recoverForm");
-
-const passwordInput = document.getElementById("register-password");
-const passwordStrengthBar = document.getElementById("password-strength-bar");
-
 const logoutBtn = document.getElementById("logout-btn");
 const userEmailDisplay = document.getElementById("user-email-display");
 const userNameDisplay = document.getElementById("user-name-display");
@@ -55,7 +35,7 @@ const stockSection = document.getElementById("stock-section");
 const clientsSection = document.getElementById("clients-section");
 const pdvSection = document.getElementById("pdv-section");
 const reportsSection = document.getElementById("reports-section");
-const usersSection = document.getElementById("users-section"); // Nova seção
+const usersSection = document.getElementById("users-section");
 const sectionTitle = document.getElementById("section-title");
 
 const productForm = document.getElementById("product-form");
@@ -81,7 +61,7 @@ const companyNameField = document.getElementById("company-name-field");
 
 // Elementos do PDV
 const productSearch = document.getElementById("product-search");
-const searchProductPdvBtn = document.getElementById("search-product-pdv-btn"); // Renomeado
+const searchProductPdvBtn = document.getElementById("search-product-pdv-btn");
 const productTypeFilter = document.getElementById("product-type-filter");
 const productsGrid = document.getElementById("products-grid");
 const cartItems = document.getElementById("cart-items");
@@ -321,110 +301,122 @@ sidebarMenuItems.forEach((item) => {
 });
 
 // Alternar entre abas nos relatórios
-tabBtns.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const tabId = btn.getAttribute("data-tab");
+if(tabBtns) {
+    tabBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tabId = btn.getAttribute("data-tab");
 
-    // Remover active de todos os botões e conteúdos
-    tabBtns.forEach((b) => b.classList.remove("active"));
-    tabContents.forEach((c) => c.classList.remove("active"));
+        // Remover active de todos os botões e conteúdos
+        tabBtns.forEach((b) => b.classList.remove("active"));
+        tabContents.forEach((c) => c.classList.remove("active"));
 
-    // Adicionar active no botão e conteúdo clicado
-    btn.classList.add("active");
-    document.getElementById(tabId).classList.add("active");
-  });
-});
+        // Adicionar active no botão e conteúdo clicado
+        btn.classList.add("active");
+        document.getElementById(tabId).classList.add("active");
+      });
+    });
+}
+
 
 // Cadastro de produtos
-productForm.addEventListener("submit", (e) => {
-  e.preventDefault();
+if(productForm) {
+    productForm.addEventListener("submit", (e) => {
+      e.preventDefault();
 
-  const barcode = document.getElementById("product-barcode").value;
-  const description = document.getElementById("product-description").value;
-  const cost = parseFloat(document.getElementById("product-cost").value);
-  const price = parseFloat(document.getElementById("product-price").value);
-  const stock = parseFloat(document.getElementById("product-stock").value);
-  const minStock = parseFloat(
-    document.getElementById("product-min-stock").value
-  );
-  const type = document.querySelector(
-    'input[name="product-type"]:checked'
-  ).value;
-  const unit = productUnitSelect.value;
+      const barcode = document.getElementById("product-barcode").value;
+      const description = document.getElementById("product-description").value;
+      const cost = parseFloat(document.getElementById("product-cost").value);
+      const price = parseFloat(document.getElementById("product-price").value);
+      const stock = parseFloat(document.getElementById("product-stock").value);
+      const minStock = parseFloat(
+        document.getElementById("product-min-stock").value
+      );
+      const type = document.querySelector(
+        'input[name="product-type"]:checked'
+      ).value;
+      const unit = productUnitSelect.value;
 
-  // Validar se o código de barras já existe
-  if (products.find((p) => p.barcode === barcode)) {
-    showNotification("Já existe um produto com este código de barras!", "error");
-    return;
-  }
+      // Validar se o código de barras já existe
+      if (products.find((p) => p.barcode === barcode)) {
+        showNotification("Já existe um produto com este código de barras!", "error");
+        return;
+      }
 
-  // Processar imagem (se fornecida)
-  let imageData = null;
-  if (productImageInput.files && productImageInput.files[0]) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      imageData = e.target.result;
-      // Continuar com o salvamento do produto após a leitura da imagem
-      saveProductWithImage();
-    };
-    reader.readAsDataURL(productImageInput.files[0]);
-  } else {
-    saveProductWithImage();
-  }
+      // Processar imagem (se fornecida)
+      let imageData = null;
+      if (productImageInput.files && productImageInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          imageData = e.target.result;
+          // Continuar com o salvamento do produto após a leitura da imagem
+          saveProductWithImage();
+        };
+        reader.readAsDataURL(productImageInput.files[0]);
+      } else {
+        saveProductWithImage();
+      }
 
-  function saveProductWithImage() {
-    // Adicionar produto
-    const product = {
-      id: Date.now().toString(),
-      barcode,
-      description,
-      cost,
-      price,
-      stock,
-      minStock,
-      type,
-      unit,
-      image: imageData,
-    };
+      function saveProductWithImage() {
+        // Adicionar produto
+        const product = {
+          id: Date.now().toString(),
+          barcode,
+          description,
+          cost,
+          price,
+          stock,
+          minStock,
+          type,
+          unit,
+          image: imageData,
+        };
 
-    products.push(product);
-    saveProducts();
-    loadProducts();
-    updateFinishedProductSelect();
-    updateProductionProductSelect();
+        products.push(product);
+        saveProducts();
+        loadProducts();
+        updateFinishedProductSelect();
+        updateProductionProductSelect();
 
-    // Registrar movimentação de estoque inicial
-    addStockMovement(product.id, "ENTRADA", stock, "Estoque inicial");
+        // Registrar movimentação de estoque inicial
+        addStockMovement(product.id, "ENTRADA", stock, "Estoque inicial");
 
-    // Limpar formulário
-    productForm.reset();
-    productImagePreview.style.display = "none";
-    removeImageBtn.style.display = "none";
-    showNotification("Produto salvo com sucesso!", "success");
-  }
-});
+        // Limpar formulário
+        productForm.reset();
+        productImagePreview.style.display = "none";
+        removeImageBtn.style.display = "none";
+        showNotification("Produto salvo com sucesso!", "success");
+      }
+    });
+}
+
 
 // Visualização de imagem antes do upload
-productImageInput.addEventListener("change", function () {
-  if (this.files && this.files[0]) {
-    const reader = new FileReader();
+if(productImageInput) {
+    productImageInput.addEventListener("change", function () {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
 
-    reader.onload = function (e) {
-      productImagePreview.src = e.target.result;
-      productImagePreview.style.display = "block";
-      removeImageBtn.style.display = "inline-block";
-    };
+        reader.onload = function (e) {
+          productImagePreview.src = e.target.result;
+          productImagePreview.style.display = "block";
+          removeImageBtn.style.display = "inline-block";
+        };
 
-    reader.readAsDataURL(this.files[0]);
-  }
-});
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+}
+
 
 // Remover imagem selecionada
-removeImageBtn.addEventListener("click", function () {
-  productImageInput.value = "";
-  productImagePreview.style.display = "none";
-  this.style.display = "none";
-});
+if(removeImageBtn) {
+    removeImageBtn.addEventListener("click", function () {
+      productImageInput.value = "";
+      productImagePreview.style.display = "none";
+      this.style.display = "none";
+    });
+}
+
 
 // Carregar produtos na tabela
 function loadProducts(productsToLoad = products) {
@@ -588,9 +580,12 @@ function saveUsers() {
 }
 
 // Adicionar ingrediente à receita
-addIngredientBtn.addEventListener("click", () => {
-  addIngredientRow();
-});
+if(addIngredientBtn) {
+    addIngredientBtn.addEventListener("click", () => {
+      addIngredientRow();
+    });
+}
+
 
 function addIngredientRow(ingredient = null) {
   const row = document.createElement("div");
@@ -696,183 +691,189 @@ function updateUnitOptions(unitSelect, productUnit) {
 }
 
 // Processar formulário de produção
-productionForm.addEventListener("submit", (e) => {
-  e.preventDefault();
+if(productionForm) {
+    productionForm.addEventListener("submit", (e) => {
+      e.preventDefault();
 
-  const finishedProductId = finishedProductSelect.value;
-  const batchSize = parseInt(document.getElementById("batch-size").value);
+      const finishedProductId = finishedProductSelect.value;
+      const batchSize = parseInt(document.getElementById("batch-size").value);
 
-  if (!finishedProductId) {
-    showNotification("Selecione um produto acabado!", "error");
-    return;
-  }
+      if (!finishedProductId) {
+        showNotification("Selecione um produto acabado!", "error");
+        return;
+      }
 
-  const finishedProduct = products.find((p) => p.id === finishedProductId);
-  if (!finishedProduct) {
-    showNotification("Produto acabado não encontrado!", "error");
-    return;
-  }
+      const finishedProduct = products.find((p) => p.id === finishedProductId);
+      if (!finishedProduct) {
+        showNotification("Produto acabado não encontrado!", "error");
+        return;
+      }
 
-  // Coletar ingredientes
-  const ingredientRows =
-    ingredientsContainer.querySelectorAll(".ingredient-row");
-  if (ingredientRows.length === 0) {
-    showNotification("Adicione pelo menos um ingrediente!", "error");
-    return;
-  }
+      // Coletar ingredientes
+      const ingredientRows =
+        ingredientsContainer.querySelectorAll(".ingredient-row");
+      if (ingredientRows.length === 0) {
+        showNotification("Adicione pelo menos um ingrediente!", "error");
+        return;
+      }
 
-  const ingredients = [];
-  let totalCost = 0;
-  let hasInsufficientStock = false;
+      const ingredients = [];
+      let totalCost = 0;
+      let hasInsufficientStock = false;
 
-  ingredientRows.forEach((row) => {
-    const select = row.querySelector(".ingredient-select");
-    const quantityInput = row.querySelector(".ingredient-quantity");
-    const unitSelect = row.querySelector(".ingredient-unit");
+      ingredientRows.forEach((row) => {
+        const select = row.querySelector(".ingredient-select");
+        const quantityInput = row.querySelector(".ingredient-quantity");
+        const unitSelect = row.querySelector(".ingredient-unit");
 
-    const ingredientId = select.value;
-    const quantity = parseFloat(quantityInput.value);
-    const unit = unitSelect.value;
+        const ingredientId = select.value;
+        const quantity = parseFloat(quantityInput.value);
+        const unit = unitSelect.value;
 
-    if (!ingredientId || isNaN(quantity)) {
-      showNotification("Preencha todos os campos dos ingredientes!", "error");
-      return;
-    }
+        if (!ingredientId || isNaN(quantity)) {
+          showNotification("Preencha todos os campos dos ingredientes!", "error");
+          return;
+        }
 
-    const ingredientProduct = products.find((p) => p.id === ingredientId);
-    if (!ingredientProduct) {
-      showNotification("Ingrediente não encontrado!", "error");
-      return;
-    }
+        const ingredientProduct = products.find((p) => p.id === ingredientId);
+        if (!ingredientProduct) {
+          showNotification("Ingrediente não encontrado!", "error");
+          return;
+        }
 
-    // Verificar se há estoque suficiente
-    if (ingredientProduct.stock < quantity) {
-      hasInsufficientStock = true;
-      row.style.border = "2px solid #e74c3c";
-    } else {
-      row.style.border = "";
-    }
+        // Verificar se há estoque suficiente
+        if (ingredientProduct.stock < quantity) {
+          hasInsufficientStock = true;
+          row.style.border = "2px solid #e74c3c";
+        } else {
+          row.style.border = "";
+        }
 
-    // Calcular custo do ingrediente (simplificado)
-    let cost = 0;
-    if (unit === "g" || unit === "ml") {
-      // Assumindo que o custo do produto é por kg ou litro
-      cost = (ingredientProduct.cost / 1000) * quantity;
-    } else if (unit === "kg" || unit === "l") {
-      cost = ingredientProduct.cost * quantity;
-    } else if (unit === "un") {
-      cost = ingredientProduct.cost * quantity;
-    }
+        // Calcular custo do ingrediente (simplificado)
+        let cost = 0;
+        if (unit === "g" || unit === "ml") {
+          // Assumindo que o custo do produto é por kg ou litro
+          cost = (ingredientProduct.cost / 1000) * quantity;
+        } else if (unit === "kg" || unit === "l") {
+          cost = ingredientProduct.cost * quantity;
+        } else if (unit === "un") {
+          cost = ingredientProduct.cost * quantity;
+        }
 
-    ingredients.push({
-      id: ingredientId,
-      product: ingredientProduct,
-      quantity,
-      unit,
-      cost,
+        ingredients.push({
+          id: ingredientId,
+          product: ingredientProduct,
+          quantity,
+          unit,
+          cost,
+        });
+
+        totalCost += cost;
+      });
+
+      if (hasInsufficientStock) {
+        showNotification(
+          "Estoque insuficiente para um ou mais ingredientes!",
+          "error"
+        );
+        saveProductionBtn.disabled = true;
+        return;
+      }
+
+      // Calcular resultados
+      const unitCost = totalCost / batchSize;
+      const profitMargin =
+        ((finishedProduct.price - unitCost) / finishedProduct.price) * 100;
+
+      // Exibir resultados
+      document.getElementById("total-cost").textContent = `R$ ${totalCost.toFixed(
+        2
+      )}`;
+      document.getElementById("unit-cost").textContent = `R$ ${unitCost.toFixed(
+        2
+      )}`;
+      document.getElementById("yield").textContent = `${batchSize} unidades`;
+      document.getElementById(
+        "profit-margin"
+      ).textContent = `${profitMargin.toFixed(2)}%`;
+
+      // Atualizar produção atual
+      currentProduction = {
+        finishedProductId,
+        finishedProduct,
+        batchSize,
+        ingredients,
+        totalCost,
+        unitCost,
+        profitMargin,
+        date: new Date().toISOString(),
+      };
+
+      // Habilitar botão de salvar produção
+      saveProductionBtn.disabled = false;
+
+      productionResults.classList.remove("hidden");
     });
+}
 
-    totalCost += cost;
-  });
-
-  if (hasInsufficientStock) {
-    showNotification(
-      "Estoque insuficiente para um ou mais ingredientes!",
-      "error"
-    );
-    saveProductionBtn.disabled = true;
-    return;
-  }
-
-  // Calcular resultados
-  const unitCost = totalCost / batchSize;
-  const profitMargin =
-    ((finishedProduct.price - unitCost) / finishedProduct.price) * 100;
-
-  // Exibir resultados
-  document.getElementById("total-cost").textContent = `R$ ${totalCost.toFixed(
-    2
-  )}`;
-  document.getElementById("unit-cost").textContent = `R$ ${unitCost.toFixed(
-    2
-  )}`;
-  document.getElementById("yield").textContent = `${batchSize} unidades`;
-  document.getElementById(
-    "profit-margin"
-  ).textContent = `${profitMargin.toFixed(2)}%`;
-
-  // Atualizar produção atual
-  currentProduction = {
-    finishedProductId,
-    finishedProduct,
-    batchSize,
-    ingredients,
-    totalCost,
-    unitCost,
-    profitMargin,
-    date: new Date().toISOString(),
-  };
-
-  // Habilitar botão de salvar produção
-  saveProductionBtn.disabled = false;
-
-  productionResults.classList.remove("hidden");
-});
 
 // Salvar produção
-saveProductionBtn.addEventListener("click", () => {
-  if (!currentProduction) return;
+if(saveProductionBtn) {
+    saveProductionBtn.addEventListener("click", () => {
+      if (!currentProduction) return;
 
-  // Atualizar estoque
-  // Adicionar produto acabado ao estoque
-  const finishedProduct = products.find(
-    (p) => p.id === currentProduction.finishedProductId
-  );
-  if (finishedProduct) {
-    finishedProduct.stock += currentProduction.batchSize;
-    addStockMovement(
-      finishedProduct.id,
-      "ENTRADA",
-      currentProduction.batchSize,
-      "Produção"
-    );
-  }
+      // Atualizar estoque
+      // Adicionar produto acabado ao estoque
+      const finishedProduct = products.find(
+        (p) => p.id === currentProduction.finishedProductId
+      );
+      if (finishedProduct) {
+        finishedProduct.stock += currentProduction.batchSize;
+        addStockMovement(
+          finishedProduct.id,
+          "ENTRADA",
+          currentProduction.batchSize,
+          "Produção"
+        );
+      }
 
-  // Remover ingredientes do estoque
-  currentProduction.ingredients.forEach((ingredient) => {
-    const product = products.find((p) => p.id === ingredient.id);
-    if (product) {
-      product.stock -= ingredient.quantity;
-      addStockMovement(product.id, "SAÍDA", ingredient.quantity, "Produção");
-    }
-  });
+      // Remover ingredientes do estoque
+      currentProduction.ingredients.forEach((ingredient) => {
+        const product = products.find((p) => p.id === ingredient.id);
+        if (product) {
+          product.stock -= ingredient.quantity;
+          addStockMovement(product.id, "SAÍDA", ingredient.quantity, "Produção");
+        }
+      });
 
-  // Salvar produção no histórico
-  productions.push({
-    ...currentProduction,
-    id: Date.now().toString(),
-  });
+      // Salvar produção no histórico
+      productions.push({
+        ...currentProduction,
+        id: Date.now().toString(),
+      });
 
-  // Salvar dados
-  saveProducts();
-  saveProductions();
-  saveStockMovements();
+      // Salvar dados
+      saveProducts();
+      saveProductions();
+      saveStockMovements();
 
-  // Recarregar dados
-  loadProducts();
-  loadProductionHistory();
-  loadStockMovements();
+      // Recarregar dados
+      loadProducts();
+      loadProductionHistory();
+      loadStockMovements();
 
-  // Limpar formulário
-  productionForm.reset();
-  ingredientsContainer.innerHTML = "";
-  addIngredientRow();
-  productionResults.classList.add("hidden");
-  saveProductionBtn.disabled = true;
-  currentProduction = null;
+      // Limpar formulário
+      productionForm.reset();
+      ingredientsContainer.innerHTML = "";
+      addIngredientRow();
+      productionResults.classList.add("hidden");
+      saveProductionBtn.disabled = true;
+      currentProduction = null;
 
-  showNotification("Produção salva com sucesso! Estoque atualizado.", "success");
-});
+      showNotification("Produção salva com sucesso! Estoque atualizado.", "success");
+    });
+}
+
 
 // Carregar histórico de produção
 function loadProductionHistory() {
@@ -1019,73 +1020,76 @@ function addStockMovement(productId, type, quantity, reason) {
 }
 
 // Cadastro de clientes
-clientForm.addEventListener("submit", (e) => {
-  e.preventDefault();
+if(clientForm) {
+    clientForm.addEventListener("submit", (e) => {
+      e.preventDefault();
 
-  const name = document.getElementById("client-name").value;
-  const type = document.querySelector(
-    'input[name="client-type"]:checked'
-  ).value;
-  const cpf = document.getElementById("client-cpf").value;
-  const cnpj = document.getElementById("client-cnpj").value;
-  const companyName = document.getElementById("client-company-name").value;
-  const email = document.getElementById("client-email").value;
-  const phone = document.getElementById("client-phone").value;
-  const whatsapp = document.getElementById("client-whatsapp").value;
-  const address = document.getElementById("client-address").value;
+      const name = document.getElementById("client-name").value;
+      const type = document.querySelector(
+        'input[name="client-type"]:checked'
+      ).value;
+      const cpf = document.getElementById("client-cpf").value;
+      const cnpj = document.getElementById("client-cnpj").value;
+      const companyName = document.getElementById("client-company-name").value;
+      const email = document.getElementById("client-email").value;
+      const phone = document.getElementById("client-phone").value;
+      const whatsapp = document.getElementById("client-whatsapp").value;
+      const address = document.getElementById("client-address").value;
 
-  // Validar campos obrigatórios baseados no tipo
-  if (type === "physical" && !cpf) {
-    showNotification("CPF é obrigatório para pessoa física!", "error");
-    return;
-  }
+      // Validar campos obrigatórios baseados no tipo
+      if (type === "physical" && !cpf) {
+        showNotification("CPF é obrigatório para pessoa física!", "error");
+        return;
+      }
 
-  if (type === "legal" && !cnpj) {
-    showNotification("CNPJ é obrigatório para pessoa jurídica!", "error");
-    return;
-  }
+      if (type === "legal" && !cnpj) {
+        showNotification("CNPJ é obrigatório para pessoa jurídica!", "error");
+        return;
+      }
 
-  if (type === "legal" && !companyName) {
-    showNotification("Razão Social é obrigatória para pessoa jurídica!", "error");
-    return;
-  }
+      if (type === "legal" && !companyName) {
+        showNotification("Razão Social é obrigatória para pessoa jurídica!", "error");
+        return;
+      }
 
-  // Validar se CPF/CNPJ já existe
-  if (type === "physical" && clients.find((c) => c.cpf === cpf)) {
-    showNotification("Já existe um cliente com este CPF!", "error");
-    return;
-  }
+      // Validar se CPF/CNPJ já existe
+      if (type === "physical" && clients.find((c) => c.cpf === cpf)) {
+        showNotification("Já existe um cliente com este CPF!", "error");
+        return;
+      }
 
-  if (type === "legal" && clients.find((c) => c.cnpj === cnpj)) {
-    showNotification("Já existe um cliente com este CNPJ!", "error");
-    return;
-  }
+      if (type === "legal" && clients.find((c) => c.cnpj === cnpj)) {
+        showNotification("Já existe um cliente com este CNPJ!", "error");
+        return;
+      }
 
-  // Adicionar cliente
-  const client = {
-    id: Date.now().toString(),
-    name,
-    type,
-    cpf: type === "physical" ? cpf : "",
-    cnpj: type === "legal" ? cnpj : "",
-    companyName: type === "legal" ? companyName : "",
-    email,
-    phone,
-    whatsapp,
-    address,
-  };
+      // Adicionar cliente
+      const client = {
+        id: Date.now().toString(),
+        name,
+        type,
+        cpf: type === "physical" ? cpf : "",
+        cnpj: type === "legal" ? cnpj : "",
+        companyName: type === "legal" ? companyName : "",
+        email,
+        phone,
+        whatsapp,
+        address,
+      };
 
-  clients.push(client);
-  saveClients();
-  loadClients();
-  loadSaleClientSelect();
-  updateClientSalesClientSelect(); // Atualizar select de clientes para relatório
+      clients.push(client);
+      saveClients();
+      loadClients();
+      loadSaleClientSelect();
+      updateClientSalesClientSelect(); // Atualizar select de clientes para relatório
 
-  // Limpar formulário
-  clientForm.reset();
-  toggleClientFields(); // Reset para pessoa física
-  showNotification("Cliente salvo com sucesso!", "success");
-});
+      // Limpar formulário
+      clientForm.reset();
+      toggleClientFields(); // Reset para pessoa física
+      showNotification("Cliente salvo com sucesso!", "success");
+    });
+}
+
 
 // Carregar clientes na tabela
 function loadClients(clientsToLoad = clients) {
@@ -1164,9 +1168,12 @@ function toggleClientFields() {
 }
 
 // Adicionar eventos para alternar campos de cliente
-clientTypeRadios.forEach((radio) => {
-  radio.addEventListener("change", toggleClientFields);
-});
+if(clientTypeRadios) {
+    clientTypeRadios.forEach((radio) => {
+      radio.addEventListener("change", toggleClientFields);
+    });
+}
+
 
 // Carregar select de clientes para venda
 function loadSaleClientSelect() {
@@ -1242,75 +1249,81 @@ function loadProductsGrid() {
 }
 
 // PDV - Filtrar produtos por tipo
-productTypeFilter.addEventListener("change", loadProductsGrid);
+if(productTypeFilter) {
+    productTypeFilter.addEventListener("change", loadProductsGrid);
+}
+
 
 // PDV - Buscar produtos
-searchProductPdvBtn.addEventListener("click", () => {
-  const searchTerm = productSearch.value.toLowerCase();
+if(searchProductPdvBtn) {
+    searchProductPdvBtn.addEventListener("click", () => {
+      const searchTerm = productSearch.value.toLowerCase();
 
-  if (!searchTerm) {
-    loadProductsGrid();
-    return;
-  }
+      if (!searchTerm) {
+        loadProductsGrid();
+        return;
+      }
 
-  const selectedType = productTypeFilter.value;
-  let filteredProducts = products;
+      const selectedType = productTypeFilter.value;
+      let filteredProducts = products;
 
-  if (selectedType !== "all") {
-    filteredProducts = products.filter(
-      (product) =>
-        product.type === selectedType &&
-        product.stock > 0 &&
-        (product.description.toLowerCase().includes(searchTerm) ||
-          product.barcode.toLowerCase().includes(searchTerm))
-    );
-  } else {
-    filteredProducts = products.filter(
-      (product) =>
-        product.stock > 0 &&
-        (product.description.toLowerCase().includes(searchTerm) ||
-          product.barcode.toLowerCase().includes(searchTerm))
-    );
-  }
+      if (selectedType !== "all") {
+        filteredProducts = products.filter(
+          (product) =>
+            product.type === selectedType &&
+            product.stock > 0 &&
+            (product.description.toLowerCase().includes(searchTerm) ||
+              product.barcode.toLowerCase().includes(searchTerm))
+        );
+      } else {
+        filteredProducts = products.filter(
+          (product) =>
+            product.stock > 0 &&
+            (product.description.toLowerCase().includes(searchTerm) ||
+              product.barcode.toLowerCase().includes(searchTerm))
+        );
+      }
 
-  productsGrid.innerHTML = "";
+      productsGrid.innerHTML = "";
 
-  if (filteredProducts.length === 0) {
-    productsGrid.innerHTML =
-      '<p style="text-align: center; padding: 20px; color: #666;">Nenhum produto encontrado</p>';
-    return;
-  }
+      if (filteredProducts.length === 0) {
+        productsGrid.innerHTML =
+          '<p style="text-align: center; padding: 20px; color: #666;">Nenhum produto encontrado</p>';
+        return;
+      }
 
-  filteredProducts.forEach((product) => {
-    const card = document.createElement("div");
-    card.className = "product-card";
-    card.setAttribute("data-id", product.id);
+      filteredProducts.forEach((product) => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.setAttribute("data-id", product.id);
 
-    // Adicionar imagem do produto no PDV
-    let imageHtml = "";
-    if (product.image) {
-      imageHtml = `<img src="${product.image}" class="product-image-pdv" alt="${product.description}">`;
-    } else {
-      imageHtml = `<div class="no-image">Sem imagem</div>`;
-    }
+        // Adicionar imagem do produto no PDV
+        let imageHtml = "";
+        if (product.image) {
+          imageHtml = `<img src="${product.image}" class="product-image-pdv" alt="${product.description}">`;
+        } else {
+          imageHtml = `<div class="no-image">Sem imagem</div>`;
+        }
 
-    card.innerHTML = `
-                    ${imageHtml}
-                    <h4>${product.description}</h4>
-                    <div class="price">R$ ${product.price.toFixed(2)}</div>
-                    <div class="stock">Estoque: ${product.stock} ${getUnitText(
-      product.unit
-    )}</div>
-                    <div>${getTypeBadge(product.type)}</div>
-                `;
+        card.innerHTML = `
+                        ${imageHtml}
+                        <h4>${product.description}</h4>
+                        <div class="price">R$ ${product.price.toFixed(2)}</div>
+                        <div class="stock">Estoque: ${product.stock} ${getUnitText(
+          product.unit
+        )}</div>
+                        <div>${getTypeBadge(product.type)}</div>
+                    `;
 
-    card.addEventListener("click", () => {
-      addToCart(product);
+        card.addEventListener("click", () => {
+          addToCart(product);
+        });
+
+        productsGrid.appendChild(card);
+      });
     });
+}
 
-    productsGrid.appendChild(card);
-  });
-});
 
 // PDV - Adicionar produto ao carrinho
 function addToCart(product) {
@@ -1462,109 +1475,121 @@ function removeFromCart(productId) {
 }
 
 // PDV - Atualizar desconto
-discountInput.addEventListener("input", () => {
-  updateCartDisplay();
-});
+if(discountInput) {
+    discountInput.addEventListener("input", () => {
+      updateCartDisplay();
+    });
+}
+
 
 // Atualizar tipo de desconto
-discountTypeRadios.forEach((radio) => {
-  radio.addEventListener("change", () => {
-    updateCartDisplay();
-  });
-});
+if(discountTypeRadios) {
+    discountTypeRadios.forEach((radio) => {
+      radio.addEventListener("change", () => {
+        updateCartDisplay();
+      });
+    });
+}
+
 
 // PDV - Limpar carrinho
-clearCartBtn.addEventListener("click", () => {
-  cart = [];
-  discountInput.value = "0";
-  updateCartDisplay();
-});
+if(clearCartBtn) {
+    clearCartBtn.addEventListener("click", () => {
+      cart = [];
+      discountInput.value = "0";
+      updateCartDisplay();
+    });
+}
+
 
 // PDV - Finalizar venda
-finalizeSaleBtn.addEventListener("click", () => {
-  if (cart.length === 0) {
-    showNotification("Adicione produtos ao carrinho antes de finalizar a venda.", "error");
-    return;
-  }
+if(finalizeSaleBtn) {
+    finalizeSaleBtn.addEventListener("click", () => {
+      if (cart.length === 0) {
+        showNotification("Adicione produtos ao carrinho antes de finalizar a venda.", "error");
+        return;
+      }
 
-  const discountValue = parseFloat(discountInput.value) || 0;
-  const discountType = document.querySelector(
-    'input[name="discount-type"]:checked'
-  ).value;
-  const payment = paymentMethod.value;
-  const clientId = saleClient.value;
-  const client = clientId ? clients.find((c) => c.id === clientId) : null;
+      const discountValue = parseFloat(discountInput.value) || 0;
+      const discountType = document.querySelector(
+        'input[name="discount-type"]:checked'
+      ).value;
+      const payment = paymentMethod.value;
+      const clientId = saleClient.value;
+      const client = clientId ? clients.find((c) => c.id === clientId) : null;
 
-  // Calcular total
-  let subtotal = 0;
-  cart.forEach((item) => {
-    subtotal += item.price * item.quantity;
-  });
+      // Calcular total
+      let subtotal = 0;
+      cart.forEach((item) => {
+        subtotal += item.price * item.quantity;
+      });
 
-  // Calcular desconto baseado no tipo
-  let discount = 0;
-  if (discountType === "percent") {
-    discount = (subtotal * discountValue) / 100;
-  } else {
-    discount = discountValue;
-  }
+      // Calcular desconto baseado no tipo
+      let discount = 0;
+      if (discountType === "percent") {
+        discount = (subtotal * discountValue) / 100;
+      } else {
+        discount = discountValue;
+      }
 
-  const total = subtotal - discount;
+      const total = subtotal - discount;
 
-  // Verificar estoque
-  for (const item of cart) {
-    const product = products.find((p) => p.id === item.id);
-    if (product.stock < item.quantity) {
-      showNotification(
-        `Estoque insuficiente para ${item.name}. Disponível: ${product.stock}, Solicitado: ${item.quantity}`,
-        "error"
-      );
-      return;
-    }
-  }
-
-  // Atualizar estoque
-  cart.forEach((item) => {
-    const product = products.find((p) => p.id === item.id);
-    if (product) {
-      product.stock -= item.quantity;
-      addStockMovement(product.id, "SAÍDA", item.quantity, "Venda");
-    }
-  });
-
-  // Salvar venda
-  const sale = {
-    id: Date.now().toString(),
-    items: [...cart],
-    subtotal,
-    discount,
-    discountType, // Salvar tipo de desconto
-    total,
-    payment,
-    client: client
-      ? {
-          id: client.id,
-          name: client.name,
-          document: client.type === "physical" ? client.cpf : client.cnpj,
+      // Verificar estoque
+      for (const item of cart) {
+        const product = products.find((p) => p.id === item.id);
+        if (product.stock < item.quantity) {
+          showNotification(
+            `Estoque insuficiente para ${item.name}. Disponível: ${product.stock}, Solicitado: ${item.quantity}`,
+            "error"
+          );
+          return;
         }
-      : null,
-    date: new Date().toISOString(),
-  };
+      }
 
-  sales.push(sale);
-  saveSales();
-  saveProducts();
-  saveStockMovements();
+      // Atualizar estoque
+      cart.forEach((item) => {
+        const product = products.find((p) => p.id === item.id);
+        if (product) {
+          product.stock -= item.quantity;
+          addStockMovement(product.id, "SAÍDA", item.quantity, "Venda");
+        }
+      });
 
-  // Exibir cupom
-  showReceipt(sale);
+      // Salvar venda
+      const sale = {
+        id: Date.now().toString(),
+        items: [...cart],
+        subtotal,
+        discount,
+        discountType, // Salvar tipo de desconto
+        total,
+        payment,
+        client: client
+          ? {
+              id: client.id,
+              name: client.name,
+              document: client.type === "physical" ? client.cpf : client.cnpj,
+            }
+          : null,
+        date: new Date().toISOString(),
+      };
 
-  // Limpar carrinho
-  cart = [];
-  discountInput.value = "0";
-  saleClient.value = "";
-  updateCartDisplay();
-});
+      sales.push(sale);
+      saveSales();
+      saveProducts();
+      saveStockMovements();
+
+      // Exibir cupom
+      showReceipt(sale);
+
+      // Limpar carrinho
+      cart = [];
+      discountInput.value = "0";
+      saleClient.value = "";
+      updateCartDisplay();
+    });
+}
+
 
 // PDV - Exibir cupom
 function showReceipt(sale) {
@@ -1599,540 +1624,567 @@ function showReceipt(sale) {
 }
 
 // PDV - Imprimir cupom
-printReceiptBtn.addEventListener("click", () => {
-  window.print();
-});
+if(printReceiptBtn) {
+    printReceiptBtn.addEventListener("click", () => {
+      window.print();
+    });
+}
+
 
 // PDV - Enviar cupom por e-mail
-emailReceiptBtn.addEventListener("click", () => {
-  const clientId = saleClient.value;
-  const client = clientId ? clients.find((c) => c.id === clientId) : null;
+if(emailReceiptBtn) {
+    emailReceiptBtn.addEventListener("click", () => {
+      const clientId = saleClient.value;
+      const client = clientId ? clients.find((c) => c.id === clientId) : null;
 
-  if (client && client.email) {
-    showNotification(`Cupom enviado para ${client.email}`, "info");
-  } else {
-    showNotification(
-      "Nenhum cliente selecionado ou cliente não possui e-mail cadastrado.",
-      "error"
-    );
-  }
-});
+      if (client && client.email) {
+        showNotification(`Cupom enviado para ${client.email}`, "info");
+      } else {
+        showNotification(
+          "Nenhum cliente selecionado ou cliente não possui e-mail cadastrado.",
+          "error"
+        );
+      }
+    });
+}
+
 
 // PDV - Nova venda
-newSaleBtn.addEventListener("click", () => {
-  receipt.classList.add("hidden");
-});
+if(newSaleBtn) {
+    newSaleBtn.addEventListener("click", () => {
+      receipt.classList.add("hidden");
+    });
+}
+
 
 // RELATÓRIOS - Gerar relatório de vendas
-generateSalesReportBtn.addEventListener("click", () => {
-  const startDate = salesStartDate.value;
-  const endDate = salesEndDate.value;
-  const paymentMethod = salesPaymentMethod.value;
+if(generateSalesReportBtn) {
+    generateSalesReportBtn.addEventListener("click", () => {
+      const startDate = salesStartDate.value;
+      const endDate = salesEndDate.value;
+      const paymentMethod = salesPaymentMethod.value;
 
-  // Filtrar vendas
-  let filteredSales = [...sales];
+      // Filtrar vendas
+      let filteredSales = [...sales];
 
-  if (startDate) {
-    filteredSales = filteredSales.filter((sale) => sale.date >= startDate);
-  }
+      if (startDate) {
+        filteredSales = filteredSales.filter((sale) => sale.date >= startDate);
+      }
 
-  if (endDate) {
-    // Ajustar a data fim para incluir o dia inteiro
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
-    filteredSales = filteredSales.filter(
-      (sale) => sale.date <= end.toISOString()
-    );
-  }
+      if (endDate) {
+        // Ajustar a data fim para incluir o dia inteiro
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        filteredSales = filteredSales.filter(
+          (sale) => sale.date <= end.toISOString()
+        );
+      }
 
-  if (paymentMethod !== "all") {
-    filteredSales = filteredSales.filter(
-      (sale) => sale.payment === paymentMethod
-    );
-  }
+      if (paymentMethod !== "all") {
+        filteredSales = filteredSales.filter(
+          (sale) => sale.payment === paymentMethod
+        );
+      }
 
-  // Exibir resultados
-  salesReportBody.innerHTML = "";
+      // Exibir resultados
+      salesReportBody.innerHTML = "";
 
-  if (filteredSales.length === 0) {
-    salesReportBody.innerHTML =
-      '<tr><td colspan="7" style="text-align: center;">Nenhuma venda encontrada no período</td></tr>';
-    salesSummary.classList.add("hidden");
-    return;
-  }
+      if (filteredSales.length === 0) {
+        salesReportBody.innerHTML =
+          '<tr><td colspan="7" style="text-align: center;">Nenhuma venda encontrada no período</td></tr>';
+        salesSummary.classList.add("hidden");
+        return;
+      }
 
-  // Calcular totais
-  let totalSales = 0;
-  let totalDiscount = 0;
-  let totalAmount = 0;
+      // Calcular totais
+      let totalSales = 0;
+      let totalDiscount = 0;
+      let totalAmount = 0;
 
-  filteredSales.forEach((sale) => {
-    totalSales += sale.subtotal;
-    totalDiscount += sale.discount;
-    totalAmount += sale.total;
+      filteredSales.forEach((sale) => {
+        totalSales += sale.subtotal;
+        totalDiscount += sale.discount;
+        totalAmount += sale.total;
 
-    const row = document.createElement("tr");
-    const date = new Date(sale.date).toLocaleDateString("pt-BR");
-    const clientName = sale.client ? sale.client.name : "Não informado";
-    const itemsText = sale.items
-      .map((item) => `${item.quantity}x ${item.name}`)
-      .join(", ");
+        const row = document.createElement("tr");
+        const date = new Date(sale.date).toLocaleDateString("pt-BR");
+        const clientName = sale.client ? sale.client.name : "Não informado";
+        const itemsText = sale.items
+          .map((item) => `${item.quantity}x ${item.name}`)
+          .join(", ");
 
-    row.innerHTML = `
-                    <td>${date}</td>
-                    <td>${clientName}</td>
-                    <td>${getPaymentMethodText(sale.payment)}</td>
-                    <td>${itemsText}</td>
-                    <td>R$ ${sale.subtotal.toFixed(2)}</td>
-                    <td>R$ ${sale.discount.toFixed(2)}</td>
-                    <td>R$ ${sale.total.toFixed(2)}</td>
-                `;
+        row.innerHTML = `
+                        <td>${date}</td>
+                        <td>${clientName}</td>
+                        <td>${getPaymentMethodText(sale.payment)}</td>
+                        <td>${itemsText}</td>
+                        <td>R$ ${sale.subtotal.toFixed(2)}</td>
+                        <td>R$ ${sale.discount.toFixed(2)}</td>
+                        <td>R$ ${sale.total.toFixed(2)}</td>
+                    `;
 
-    salesReportBody.appendChild(row);
-  });
+        salesReportBody.appendChild(row);
+      });
 
-  // Atualizar resumo
-  totalSalesCount.textContent = filteredSales.length;
-  totalSalesAmount.textContent = `R$ ${totalAmount.toFixed(2)}`;
-  averageSale.textContent = `R$ ${(totalAmount / filteredSales.length).toFixed(
-    2
-  )}`;
+      // Atualizar resumo
+      totalSalesCount.textContent = filteredSales.length;
+      totalSalesAmount.textContent = `R$ ${totalAmount.toFixed(2)}`;
+      averageSale.textContent = `R$ ${(totalAmount / filteredSales.length).toFixed(
+        2
+      )}`;
 
-  salesSummary.classList.remove("hidden");
-});
+      salesSummary.classList.remove("hidden");
+    });
+}
+
 
 // RELATÓRIOS - Gerar relatório de produção
-generateProductionReportBtn.addEventListener("click", () => {
-  const startDate = productionStartDate.value;
-  const endDate = productionEndDate.value;
-  const productId = productionProduct.value;
+if(generateProductionReportBtn) {
+    generateProductionReportBtn.addEventListener("click", () => {
+      const startDate = productionStartDate.value;
+      const endDate = productionEndDate.value;
+      const productId = productionProduct.value;
 
-  // Filtrar produções
-  let filteredProductions = [...productions];
+      // Filtrar produções
+      let filteredProductions = [...productions];
 
-  if (startDate) {
-    filteredProductions = filteredProductions.filter(
-      (production) => production.date >= startDate
-    );
-  }
+      if (startDate) {
+        filteredProductions = filteredProductions.filter(
+          (production) => production.date >= startDate
+        );
+      }
 
-  if (endDate) {
-    // Ajustar a data fim para incluir o dia inteiro
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
-    filteredProductions = filteredProductions.filter(
-      (production) => production.date <= end.toISOString()
-    );
-  }
+      if (endDate) {
+        // Ajustar a data fim para incluir o dia inteiro
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        filteredProductions = filteredProductions.filter(
+          (production) => production.date <= end.toISOString()
+        );
+      }
 
-  if (productId !== "all") {
-    filteredProductions = filteredProductions.filter(
-      (production) => production.finishedProductId === productId
-    );
-  }
+      if (productId !== "all") {
+        filteredProductions = filteredProductions.filter(
+          (production) => production.finishedProductId === productId
+        );
+      }
 
-  // Exibir resultados
-  productionReportBody.innerHTML = "";
+      // Exibir resultados
+      productionReportBody.innerHTML = "";
 
-  if (filteredProductions.length === 0) {
-    productionReportBody.innerHTML =
-      '<tr><td colspan="6" style="text-align: center;">Nenhuma produção encontrada no período</td></tr>';
-    productionSummary.classList.add("hidden");
-    return;
-  }
+      if (filteredProductions.length === 0) {
+        productionReportBody.innerHTML =
+          '<tr><td colspan="6" style="text-align: center;">Nenhuma produção encontrada no período</td></tr>';
+        productionSummary.classList.add("hidden");
+        return;
+      }
 
-  // Calcular totais
-  let totalCost = 0;
-  let totalUnits = 0;
+      // Calcular totais
+      let totalCost = 0;
+      let totalUnits = 0;
 
-  filteredProductions.forEach((production) => {
-    totalCost += production.totalCost;
-    totalUnits += production.batchSize;
+      filteredProductions.forEach((production) => {
+        totalCost += production.totalCost;
+        totalUnits += production.batchSize;
 
-    const row = document.createElement("tr");
-    const date = new Date(production.date).toLocaleDateString("pt-BR");
+        const row = document.createElement("tr");
+        const date = new Date(production.date).toLocaleDateString("pt-BR");
 
-    row.innerHTML = `
-                    <td>${date}</td>
-                    <td>${production.finishedProduct.description}</td>
-                    <td>${production.batchSize}</td>
-                    <td>R$ ${production.totalCost.toFixed(2)}</td>
-                    <td>R$ ${production.unitCost.toFixed(2)}</td>
-                    <td>${production.profitMargin.toFixed(2)}%</td>
-                `;
+        row.innerHTML = `
+                        <td>${date}</td>
+                        <td>${production.finishedProduct.description}</td>
+                        <td>${production.batchSize}</td>
+                        <td>R$ ${production.totalCost.toFixed(2)}</td>
+                        <td>R$ ${production.unitCost.toFixed(2)}</td>
+                        <td>${production.profitMargin.toFixed(2)}%</td>
+                    `;
 
-    productionReportBody.appendChild(row);
-  });
+        productionReportBody.appendChild(row);
+      });
 
-  // Atualizar resumo
-  totalProductionsCount.textContent = filteredProductions.length;
-  totalProductionCost.textContent = `R$ ${totalCost.toFixed(2)}`;
-  totalUnitsProduced.textContent = totalUnits;
+      // Atualizar resumo
+      totalProductionsCount.textContent = filteredProductions.length;
+      totalProductionCost.textContent = `R$ ${totalCost.toFixed(2)}`;
+      totalUnitsProduced.textContent = totalUnits;
 
-  productionSummary.classList.remove("hidden");
-});
+      productionSummary.classList.remove("hidden");
+    });
+}
 
-// RELATÓRIOS - Exportar PDF do relatório de vendas por cliente
-generateClientSalesReportBtn.addEventListener("click", () => {
-  const startDate = clientSalesStartDate.value;
-  const endDate = clientSalesEndDate.value;
-  const clientId = clientSalesClient.value;
 
-  // Filtrar vendas
-  let filteredSales = [...sales];
+// RELATÓRIOS - Gerar relatório de vendas por cliente
+if(generateClientSalesReportBtn) {
+    generateClientSalesReportBtn.addEventListener("click", () => {
+      const startDate = clientSalesStartDate.value;
+      const endDate = clientSalesEndDate.value;
+      const clientId = clientSalesClient.value;
 
-  if (startDate) {
-    filteredSales = filteredSales.filter((sale) => sale.date >= startDate);
-  }
+      // Filtrar vendas
+      let filteredSales = [...sales];
 
-  if (endDate) {
-    // Ajustar a data fim para incluir o dia inteiro
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
-    filteredSales = filteredSales.filter(
-      (sale) => sale.date <= end.toISOString()
-    );
-  }
+      if (startDate) {
+        filteredSales = filteredSales.filter((sale) => sale.date >= startDate);
+      }
 
-  if (clientId !== "all") {
-    filteredSales = filteredSales.filter(
-      (sale) => sale.client && sale.client.id === clientId
-    );
-  }
+      if (endDate) {
+        // Ajustar a data fim para incluir o dia inteiro
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        filteredSales = filteredSales.filter(
+          (sale) => sale.date <= end.toISOString()
+        );
+      }
 
-  // Exibir resultados
-  clientSalesReportBody.innerHTML = "";
+      if (clientId !== "all") {
+        filteredSales = filteredSales.filter(
+          (sale) => sale.client && sale.client.id === clientId
+        );
+      }
 
-  if (filteredSales.length === 0) {
-    clientSalesReportBody.innerHTML =
-      '<tr><td colspan="7" style="text-align: center;">Nenhuma venda encontrada no período</td></tr>';
-    clientSalesSummary.classList.add("hidden");
-    return;
-  }
+      // Exibir resultados
+      clientSalesReportBody.innerHTML = "";
 
-  // Calcular totais
-  let totalSales = 0;
-  let totalDiscount = 0;
-  let totalAmount = 0;
+      if (filteredSales.length === 0) {
+        clientSalesReportBody.innerHTML =
+          '<tr><td colspan="7" style="text-align: center;">Nenhuma venda encontrada no período</td></tr>';
+        clientSalesSummary.classList.add("hidden");
+        return;
+      }
 
-  filteredSales.forEach((sale) => {
-    totalSales += sale.subtotal;
-    totalDiscount += sale.discount;
-    totalAmount += sale.total;
+      // Calcular totais
+      let totalSales = 0;
+      let totalDiscount = 0;
+      let totalAmount = 0;
 
-    const row = document.createElement("tr");
-    const date = new Date(sale.date).toLocaleDateString("pt-BR");
-    const clientName = sale.client ? sale.client.name : "Não informado";
-    const itemsText = sale.items
-      .map((item) => `${item.quantity}x ${item.name}`)
-      .join(", ");
+      filteredSales.forEach((sale) => {
+        totalSales += sale.subtotal;
+        totalDiscount += sale.discount;
+        totalAmount += sale.total;
 
-    row.innerHTML = `
-                    <td>${date}</td>
-                    <td>${clientName}</td>
-                    <td>${getPaymentMethodText(sale.payment)}</td>
-                    <td>${itemsText}</td>
-                    <td>R$ ${sale.subtotal.toFixed(2)}</td>
-                    <td>R$ ${sale.discount.toFixed(2)}</td>
-                    <td>R$ ${sale.total.toFixed(2)}</td>
-                `;
+        const row = document.createElement("tr");
+        const date = new Date(sale.date).toLocaleDateString("pt-BR");
+        const clientName = sale.client ? sale.client.name : "Não informado";
+        const itemsText = sale.items
+          .map((item) => `${item.quantity}x ${item.name}`)
+          .join(", ");
 
-    clientSalesReportBody.appendChild(row);
-  });
+        row.innerHTML = `
+                        <td>${date}</td>
+                        <td>${clientName}</td>
+                        <td>${getPaymentMethodText(sale.payment)}</td>
+                        <td>${itemsText}</td>
+                        <td>R$ ${sale.subtotal.toFixed(2)}</td>
+                        <td>R$ ${sale.discount.toFixed(2)}</td>
+                        <td>R$ ${sale.total.toFixed(2)}</td>
+                    `;
 
-  // Atualizar resumo
-  clientTotalSalesCount.textContent = filteredSales.length;
-  clientTotalSalesAmount.textContent = `R$ ${totalAmount.toFixed(2)}`;
-  clientAverageSale.textContent = `R$ ${(
-    totalAmount / filteredSales.length
-  ).toFixed(2)}`;
+        clientSalesReportBody.appendChild(row);
+      });
 
-  clientSalesSummary.classList.remove("hidden");
-});
+      // Atualizar resumo
+      clientTotalSalesCount.textContent = filteredSales.length;
+      clientTotalSalesAmount.textContent = `R$ ${totalAmount.toFixed(2)}`;
+      clientAverageSale.textContent = `R$ ${(
+        totalAmount / filteredSales.length
+      ).toFixed(2)}`;
+
+      clientSalesSummary.classList.remove("hidden");
+    });
+}
+
 
 // RELATÓRIOS - Exportar PDF do relatório de vendas
-exportSalesPdfBtn.addEventListener("click", () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+if(exportSalesPdfBtn) {
+    exportSalesPdfBtn.addEventListener("click", () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
 
-  // Título
-  doc.setFontSize(16);
-  doc.text("Relatório de Vendas", 105, 15, { align: "center" });
+      // Título
+      doc.setFontSize(16);
+      doc.text("Relatório de Vendas", 105, 15, { align: "center" });
 
-  // Filtros aplicados
-  doc.setFontSize(10);
-  let filtersText = "Filtros: ";
-  if (salesStartDate.value) filtersText += `De ${salesStartDate.value} `;
-  if (salesEndDate.value) filtersText += `Até ${salesEndDate.value} `;
-  if (salesPaymentMethod.value !== "all")
-    filtersText += `| Pagamento: ${
-      salesPaymentMethod.options[salesPaymentMethod.selectedIndex].text
-    }`;
+      // Filtros aplicados
+      doc.setFontSize(10);
+      let filtersText = "Filtros: ";
+      if (salesStartDate.value) filtersText += `De ${salesStartDate.value} `;
+      if (salesEndDate.value) filtersText += `Até ${salesEndDate.value} `;
+      if (salesPaymentMethod.value !== "all")
+        filtersText += `| Pagamento: ${
+          salesPaymentMethod.options[salesPaymentMethod.selectedIndex].text
+        }`;
 
-  doc.text(filtersText, 14, 25);
+      doc.text(filtersText, 14, 25);
 
-  // Dados das vendas
-  const tableData = [];
-  const headers = [
-    "Data",
-    "Cliente",
-    "Pagamento",
-    "Subtotal",
-    "Desconto",
-    "Total",
-  ];
+      // Dados das vendas
+      const tableData = [];
+      const headers = [
+        "Data",
+        "Cliente",
+        "Pagamento",
+        "Subtotal",
+        "Desconto",
+        "Total",
+      ];
 
-  let filteredSales = [...sales];
+      let filteredSales = [...sales];
 
-  if (salesStartDate.value) {
-    filteredSales = filteredSales.filter(
-      (sale) => sale.date >= salesStartDate.value
-    );
-  }
+      if (salesStartDate.value) {
+        filteredSales = filteredSales.filter(
+          (sale) => sale.date >= salesStartDate.value
+        );
+      }
 
-  if (salesEndDate.value) {
-    const end = new Date(salesEndDate.value);
-    end.setHours(23, 59, 59, 999);
-    filteredSales = filteredSales.filter(
-      (sale) => sale.date <= end.toISOString()
-    );
-  }
+      if (salesEndDate.value) {
+        const end = new Date(salesEndDate.value);
+        end.setHours(23, 59, 59, 999);
+        filteredSales = filteredSales.filter(
+          (sale) => sale.date <= end.toISOString()
+        );
+      }
 
-  if (salesPaymentMethod.value !== "all") {
-    filteredSales = filteredSales.filter(
-      (sale) => sale.payment === salesPaymentMethod.value
-    );
-  }
+      if (salesPaymentMethod.value !== "all") {
+        filteredSales = filteredSales.filter(
+          (sale) => sale.payment === salesPaymentMethod.value
+        );
+      }
 
-  filteredSales.forEach((sale) => {
-    const date = new Date(sale.date).toLocaleDateString("pt-BR");
-    const clientName = sale.client ? sale.client.name : "Não informado";
+      filteredSales.forEach((sale) => {
+        const date = new Date(sale.date).toLocaleDateString("pt-BR");
+        const clientName = sale.client ? sale.client.name : "Não informado";
 
-    tableData.push([
-      date,
-      clientName,
-      getPaymentMethodText(sale.payment),
-      `R$ ${sale.subtotal.toFixed(2)}`,
-      `R$ ${sale.discount.toFixed(2)}`,
-      `R$ ${sale.total.toFixed(2)}`,
-    ]);
-  });
+        tableData.push([
+          date,
+          clientName,
+          getPaymentMethodText(sale.payment),
+          `R$ ${sale.subtotal.toFixed(2)}`,
+          `R$ ${sale.discount.toFixed(2)}`,
+          `R$ ${sale.total.toFixed(2)}`,
+        ]);
+      });
 
-  // Adicionar tabela
-  doc.autoTable({
-    startY: 35,
-    head: [headers],
-    body: tableData,
-    theme: "grid",
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [106, 17, 203] },
-  });
+      // Adicionar tabela
+      doc.autoTable({
+        startY: 35,
+        head: [headers],
+        body: tableData,
+        theme: "grid",
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [106, 17, 203] },
+      });
 
-  // Resumo
-  let totalAmount = 0;
-  filteredSales.forEach((sale) => {
-    totalAmount += sale.total;
-  });
+      // Resumo
+      let totalAmount = 0;
+      filteredSales.forEach((sale) => {
+        totalAmount += sale.total;
+      });
 
-  const finalY = doc.lastAutoTable.finalY + 10;
-  doc.setFontSize(12);
-  doc.text(`Total de Vendas: ${filteredSales.length}`, 14, finalY);
-  doc.text(`Valor Total: R$ ${totalAmount.toFixed(2)}`, 14, finalY + 7);
+      const finalY = doc.lastAutoTable.finalY + 10;
+      doc.setFontSize(12);
+      doc.text(`Total de Vendas: ${filteredSales.length}`, 14, finalY);
+      doc.text(`Valor Total: R$ ${totalAmount.toFixed(2)}`, 14, finalY + 7);
 
-  // Salvar PDF
-  doc.save("relatorio_vendas.pdf");
-});
+      // Salvar PDF
+      doc.save("relatorio_vendas.pdf");
+    });
+}
+
 
 // RELATÓRIOS - Exportar PDF do relatório de produção
-exportProductionPdfBtn.addEventListener("click", () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+if(exportProductionPdfBtn) {
+    exportProductionPdfBtn.addEventListener("click", () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
 
-  // Título
-  doc.setFontSize(16);
-  doc.text("Relatório de Produção", 105, 15, { align: "center" });
+      // Título
+      doc.setFontSize(16);
+      doc.text("Relatório de Produção", 105, 15, { align: "center" });
 
-  // Filtros aplicados
-  doc.setFontSize(10);
-  let filtersText = "Filtros: ";
-  if (productionStartDate.value)
-    filtersText += `De ${productionStartDate.value} `;
-  if (productionEndDate.value) filtersText += `Até ${productionEndDate.value} `;
-  if (productionProduct.value !== "all") {
-    const product = products.find((p) => p.id === productionProduct.value);
-    if (product) filtersText += `| Produto: ${product.description}`;
-  }
+      // Filtros aplicados
+      doc.setFontSize(10);
+      let filtersText = "Filtros: ";
+      if (productionStartDate.value)
+        filtersText += `De ${productionStartDate.value} `;
+      if (productionEndDate.value) filtersText += `Até ${productionEndDate.value} `;
+      if (productionProduct.value !== "all") {
+        const product = products.find((p) => p.id === productionProduct.value);
+        if (product) filtersText += `| Produto: ${product.description}`;
+      }
 
-  doc.text(filtersText, 14, 25);
+      doc.text(filtersText, 14, 25);
 
-  // Dados das produções
-  const tableData = [];
-  const headers = [
-    "Data",
-    "Produto",
-    "Quantidade",
-    "Custo Total",
-    "Custo Unitário",
-    "Margem",
-  ];
+      // Dados das produções
+      const tableData = [];
+      const headers = [
+        "Data",
+        "Produto",
+        "Quantidade",
+        "Custo Total",
+        "Custo Unitário",
+        "Margem",
+      ];
 
-  let filteredProductions = [...productions];
+      let filteredProductions = [...productions];
 
-  if (productionStartDate.value) {
-    filteredProductions = filteredProductions.filter(
-      (production) => production.date >= productionStartDate.value
-    );
-  }
+      if (productionStartDate.value) {
+        filteredProductions = filteredProductions.filter(
+          (production) => production.date >= productionStartDate.value
+        );
+      }
 
-  if (productionEndDate.value) {
-    const end = new Date(productionEndDate.value);
-    end.setHours(23, 59, 59, 999);
-    filteredProductions = filteredProductions.filter(
-      (production) => production.date <= end.toISOString()
-    );
-  }
+      if (productionEndDate.value) {
+        const end = new Date(productionEndDate.value);
+        end.setHours(23, 59, 59, 999);
+        filteredProductions = filteredProductions.filter(
+          (production) => production.date <= end.toISOString()
+        );
+      }
 
-  if (productionProduct.value !== "all") {
-    filteredProductions = filteredProductions.filter(
-      (production) => production.finishedProductId === productionProduct.value
-    );
-  }
+      if (productionProduct.value !== "all") {
+        filteredProductions = filteredProductions.filter(
+          (production) => production.finishedProductId === productionProduct.value
+        );
+      }
 
-  filteredProductions.forEach((production) => {
-    const date = new Date(production.date).toLocaleDateString("pt-BR");
+      filteredProductions.forEach((production) => {
+        const date = new Date(production.date).toLocaleDateString("pt-BR");
 
-    tableData.push([
-      date,
-      production.finishedProduct.description,
-      production.batchSize,
-      `R$ ${production.totalCost.toFixed(2)}`,
-      `R$ ${production.unitCost.toFixed(2)}`,
-      `${production.profitMargin.toFixed(2)}%`,
-    ]);
-  });
+        tableData.push([
+          date,
+          production.finishedProduct.description,
+          production.batchSize,
+          `R$ ${production.totalCost.toFixed(2)}`,
+          `R$ ${production.unitCost.toFixed(2)}`,
+          `${production.profitMargin.toFixed(2)}%`,
+        ]);
+      });
 
-  // Adicionar tabela
-  doc.autoTable({
-    startY: 35,
-    head: [headers],
-    body: tableData,
-    theme: "grid",
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [106, 17, 203] },
-  });
+      // Adicionar tabela
+      doc.autoTable({
+        startY: 35,
+        head: [headers],
+        body: tableData,
+        theme: "grid",
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [106, 17, 203] },
+      });
 
-  // Resumo
-  let totalCost = 0;
-  let totalUnits = 0;
-  filteredProductions.forEach((production) => {
-    totalCost += production.totalCost;
-    totalUnits += production.batchSize;
-  });
+      // Resumo
+      let totalCost = 0;
+      let totalUnits = 0;
+      filteredProductions.forEach((production) => {
+        totalCost += production.totalCost;
+        totalUnits += production.batchSize;
+      });
 
-  const finalY = doc.lastAutoTable.finalY + 10;
-  doc.setFontSize(12);
-  doc.text(`Total de Produções: ${filteredProductions.length}`, 14, finalY);
-  doc.text(`Unidades Produzidas: ${totalUnits}`, 14, finalY + 7);
-  doc.text(`Custo Total: R$ ${totalCost.toFixed(2)}`, 14, finalY + 14);
+      const finalY = doc.lastAutoTable.finalY + 10;
+      doc.setFontSize(12);
+      doc.text(`Total de Produções: ${filteredProductions.length}`, 14, finalY);
+      doc.text(`Unidades Produzidas: ${totalUnits}`, 14, finalY + 7);
+      doc.text(`Custo Total: R$ ${totalCost.toFixed(2)}`, 14, finalY + 14);
 
-  // Salvar PDF
-  doc.save("relatorio_producao.pdf");
-});
+      // Salvar PDF
+      doc.save("relatorio_producao.pdf");
+    });
+}
+
 
 // RELATÓRIOS - Exportar PDF do relatório de vendas por cliente
-exportClientSalesPdfBtn.addEventListener("click", () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+if(exportClientSalesPdfBtn) {
+    exportClientSalesPdfBtn.addEventListener("click", () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
 
-  // Título
-  doc.setFontSize(16);
-  doc.text("Relatório de Vendas por Cliente", 105, 15, { align: "center" });
+      // Título
+      doc.setFontSize(16);
+      doc.text("Relatório de Vendas por Cliente", 105, 15, { align: "center" });
 
-  // Filtros aplicados
-  doc.setFontSize(10);
-  let filtersText = "Filtros: ";
-  if (clientSalesStartDate.value)
-    filtersText += `De ${clientSalesStartDate.value} `;
-  if (clientSalesEndDate.value)
-    filtersText += `Até ${clientSalesEndDate.value} `;
-  if (clientSalesClient.value !== "all") {
-    const client = clients.find((c) => c.id === clientSalesClient.value);
-    if (client) filtersText += `| Cliente: ${client.name}`;
-  }
+      // Filtros aplicados
+      doc.setFontSize(10);
+      let filtersText = "Filtros: ";
+      if (clientSalesStartDate.value)
+        filtersText += `De ${clientSalesStartDate.value} `;
+      if (clientSalesEndDate.value)
+        filtersText += `Até ${clientSalesEndDate.value} `;
+      if (clientSalesClient.value !== "all") {
+        const client = clients.find((c) => c.id === clientSalesClient.value);
+        if (client) filtersText += `| Cliente: ${client.name}`;
+      }
 
-  doc.text(filtersText, 14, 25);
+      doc.text(filtersText, 14, 25);
 
-  // Dados das vendas
-  const tableData = [];
-  const headers = [
-    "Data",
-    "Cliente",
-    "Pagamento",
-    "Subtotal",
-    "Desconto",
-    "Total",
-  ];
+      // Dados das vendas
+      const tableData = [];
+      const headers = [
+        "Data",
+        "Cliente",
+        "Pagamento",
+        "Subtotal",
+        "Desconto",
+        "Total",
+      ];
 
-  let filteredSales = [...sales];
+      let filteredSales = [...sales];
 
-  if (clientSalesStartDate.value) {
-    filteredSales = filteredSales.filter(
-      (sale) => sale.date >= clientSalesStartDate.value
-    );
-  }
+      if (clientSalesStartDate.value) {
+        filteredSales = filteredSales.filter(
+          (sale) => sale.date >= clientSalesStartDate.value
+        );
+      }
 
-  if (clientSalesEndDate.value) {
-    const end = new Date(clientSalesEndDate.value);
-    end.setHours(23, 59, 59, 999);
-    filteredSales = filteredSales.filter(
-      (sale) => sale.date <= end.toISOString()
-    );
-  }
+      if (clientSalesEndDate.value) {
+        const end = new Date(clientSalesEndDate.value);
+        end.setHours(23, 59, 59, 999);
+        filteredSales = filteredSales.filter(
+          (sale) => sale.date <= end.toISOString()
+        );
+      }
 
-  if (clientSalesClient.value !== "all") {
-    filteredSales = filteredSales.filter(
-      (sale) => sale.client && sale.client.id === clientSalesClient.value
-    );
-  }
+      if (clientSalesClient.value !== "all") {
+        filteredSales = filteredSales.filter(
+          (sale) => sale.client && sale.client.id === clientSalesClient.value
+        );
+      }
 
-  filteredSales.forEach((sale) => {
-    const date = new Date(sale.date).toLocaleDateString("pt-BR");
-    const clientName = sale.client ? sale.client.name : "Não informado";
+      filteredSales.forEach((sale) => {
+        const date = new Date(sale.date).toLocaleDateString("pt-BR");
+        const clientName = sale.client ? sale.client.name : "Não informado";
 
-    tableData.push([
-      date,
-      clientName,
-      getPaymentMethodText(sale.payment),
-      `R$ ${sale.subtotal.toFixed(2)}`,
-      `R$ ${sale.discount.toFixed(2)}`,
-      `R$ ${sale.total.toFixed(2)}`,
-    ]);
-  });
+        tableData.push([
+          date,
+          clientName,
+          getPaymentMethodText(sale.payment),
+          `R$ ${sale.subtotal.toFixed(2)}`,
+          `R$ ${sale.discount.toFixed(2)}`,
+          `R$ ${sale.total.toFixed(2)}`,
+        ]);
+      });
 
-  // Adicionar tabela
-  doc.autoTable({
-    startY: 35,
-    head: [headers],
-    body: tableData,
-    theme: "grid",
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [106, 17, 203] },
-  });
+      // Adicionar tabela
+      doc.autoTable({
+        startY: 35,
+        head: [headers],
+        body: tableData,
+        theme: "grid",
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [106, 17, 203] },
+      });
 
-  // Resumo
-  let totalAmount = 0;
-  filteredSales.forEach((sale) => {
-    totalAmount += sale.total;
-  });
+      // Resumo
+      let totalAmount = 0;
+      filteredSales.forEach((sale) => {
+        totalAmount += sale.total;
+      });
 
-  const finalY = doc.lastAutoTable.finalY + 10;
-  doc.setFontSize(12);
-  doc.text(`Total de Vendas: ${filteredSales.length}`, 14, finalY);
-  doc.text(`Valor Total: R$ ${totalAmount.toFixed(2)}`, 14, finalY + 7);
+      const finalY = doc.lastAutoTable.finalY + 10;
+      doc.setFontSize(12);
+      doc.text(`Total de Vendas: ${filteredSales.length}`, 14, finalY);
+      doc.text(`Valor Total: R$ ${totalAmount.toFixed(2)}`, 14, finalY + 7);
 
-  // Salvar PDF
-  doc.save("relatorio_vendas_cliente.pdf");
-});
+      // Salvar PDF
+      doc.save("relatorio_vendas_cliente.pdf");
+    });
+}
+
 
 // Função auxiliar para obter o texto da forma de pagamento
 function getPaymentMethodText(payment) {
@@ -2149,7 +2201,10 @@ function getPaymentMethodText(payment) {
 // NOVAS FUNÇÕES: Consulta de produtos e clientes
 
 // Consulta de produtos
-searchProductConsultaBtn.addEventListener("click", searchProducts);
+if(searchProductConsultaBtn) {
+    searchProductConsultaBtn.addEventListener("click", searchProducts);
+}
+
 
 function searchProducts() {
   const searchType = document.querySelector(
@@ -2179,13 +2234,19 @@ function searchProducts() {
 }
 
 // Limpar busca de produtos
-clearProductSearch.addEventListener("click", () => {
-  productSearchInput.value = "";
-  loadProducts();
-});
+if(clearProductSearch) {
+    clearProductSearch.addEventListener("click", () => {
+      productSearchInput.value = "";
+      loadProducts();
+    });
+}
+
 
 // Consulta de clientes
-searchClientBtn.addEventListener("click", searchClients);
+if(searchClientBtn) {
+    searchClientBtn.addEventListener("click", searchClients);
+}
+
 
 function searchClients() {
   const searchType = document.querySelector(
@@ -2219,10 +2280,13 @@ function searchClients() {
 }
 
 // Limpar busca de clientes
-clearClientSearch.addEventListener("click", () => {
-  clientSearchInput.value = "";
-  loadClients();
-});
+if(clearClientSearch) {
+    clearClientSearch.addEventListener("click", () => {
+      clientSearchInput.value = "";
+      loadClients();
+    });
+}
+
 
 // Consulta de usuários
 if (searchUserBtn) {
@@ -2247,29 +2311,31 @@ function searchUsers() {
 
 // Carregar usuários na tabela
 function loadUsersTable(usersToLoad = users) {
-  usersTableBody.innerHTML = "";
+  if(usersTableBody) {
+      usersTableBody.innerHTML = "";
 
-  if (usersToLoad.length === 0) {
-    usersTableBody.innerHTML =
-      '<tr><td colspan="4" style="text-align: center;">Nenhum usuário encontrado</td></tr>';
-    return;
+      if (usersToLoad.length === 0) {
+        usersTableBody.innerHTML =
+          '<tr><td colspan="4" style="text-align: center;">Nenhum usuário encontrado</td></tr>';
+        return;
+      }
+
+      usersToLoad.forEach((user) => {
+        const row = document.createElement("tr");
+        const roleText = getRoleText(user.role);
+
+        row.innerHTML = `
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${roleText}</td>
+                        <td>
+                            <button class="btn btn-secondary" onclick="editUser('${user.id}')">Editar</button>
+                            <button class="btn btn-danger" onclick="deleteUser('${user.id}')">Excluir</button>
+                        </td>
+                    `;
+        usersTableBody.appendChild(row);
+      });
   }
-
-  usersToLoad.forEach((user) => {
-    const row = document.createElement("tr");
-    const roleText = getRoleText(user.role);
-
-    row.innerHTML = `
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td>${roleText}</td>
-                    <td>
-                        <button class="btn btn-secondary" onclick="editUser('${user.id}')">Editar</button>
-                        <button class="btn btn-danger" onclick="deleteUser('${user.id}')">Excluir</button>
-                    </td>
-                `;
-    usersTableBody.appendChild(row);
-  });
 }
 
 function getRoleText(role) {
@@ -2316,27 +2382,34 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   // Adicionar um ingrediente inicial
-  addIngredientRow();
+  if(addIngredientRow) {
+    addIngredientRow();
+  }
 
   // Inicializar campos de cliente
-  toggleClientFields();
+  if(toggleClientFields) {
+    toggleClientFields();
+  }
 
   // Configurar datas padrão para os relatórios (últimos 30 dias)
-  const today = new Date();
-  const lastMonth = new Date();
-  lastMonth.setDate(today.getDate() - 30);
+  if(salesStartDate) {
+      const today = new Date();
+      const lastMonth = new Date();
+      lastMonth.setDate(today.getDate() - 30);
 
-  salesStartDate.value = lastMonth.toISOString().split("T")[0];
-  salesEndDate.value = today.toISOString().split("T")[0];
+      salesStartDate.value = lastMonth.toISOString().split("T")[0];
+      salesEndDate.value = today.toISOString().split("T")[0];
 
-  productionStartDate.value = lastMonth.toISOString().split("T")[0];
-  productionEndDate.value = today.toISOString().split("T")[0];
+      productionStartDate.value = lastMonth.toISOString().split("T")[0];
+      productionEndDate.value = today.toISOString().split("T")[0];
 
-  clientSalesStartDate.value = lastMonth.toISOString().split("T")[0];
-  clientSalesEndDate.value = today.toISOString().split("T")[0];
+      clientSalesStartDate.value = lastMonth.toISOString().split("T")[0];
+      clientSalesEndDate.value = today.toISOString().split("T")[0];
+  }
+
 
   // Carregar dados iniciais se estiver no dashboard
-  if (dashboardContainer && !dashboardContainer.classList.contains("hidden")) {
+  if (dashboardContainer) {
     loadProducts();
     updateFinishedProductSelect();
     loadProductionHistory();

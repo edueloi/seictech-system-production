@@ -108,11 +108,17 @@ body {
     flex-shrink: 0;
 }
 
-.sidebar-header h2 {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: var(--branco);
-    white-space: nowrap;
+.sidebar-logo {
+    width: 80%;
+    max-width: 150px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.sidebar-icon-collapsed {
+    display: none;
+    font-size: 2rem;
 }
 
 .sidebar-menu {
@@ -188,9 +194,13 @@ body {
     width: 80px;
 }
 
-.sidebar.collapsed .sidebar-header h2,
+.sidebar.collapsed .sidebar-logo,
 .sidebar.collapsed .sidebar-menu li span {
     display: none;
+}
+
+.sidebar.collapsed .sidebar-icon-collapsed {
+    display: block;
 }
 
 .sidebar.collapsed .sidebar-menu li {
@@ -238,32 +248,78 @@ body {
     cursor: pointer;
 }
 
-.user-info {
+/* Estilos para o menu de usuário */
+.user-menu {
+    position: relative;
+}
+
+.user-menu-toggle {
+    background: none;
+    border: 2px solid transparent;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
+    color: var(--text-color);
+    font-size: 1rem;
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    justify-content: center;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-#user-name-display {
-    font-weight: 600;
+.user-menu-toggle:hover {
+    background-color: rgba(0,0,0,0.05);
 }
 
-.logout-btn {
-    background-color: var(--cinza-fundo);
+.user-menu-toggle:focus {
+    outline: none;
+    border-color: var(--azul-claro);
+}
+
+.user-menu-toggle i {
+    font-size: 1.5rem;
     color: var(--azul-escuro);
-    border: 1px solid var(--cinza-borda);
-    padding: 0.6rem 1.2rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s ease;
 }
 
-.logout-btn:hover {
-    background-color: var(--danger-color);
-    color: var(--branco);
-    border-color: var(--danger-color);
+.user-menu-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background-color: var(--branco);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem;
+    z-index: 100;
+    width: 180px;
+    border: 1px solid var(--cinza-borda);
 }
+
+.user-menu-dropdown a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    color: var(--texto-primario);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.user-menu-dropdown a:hover {
+    background-color: var(--cinza-fundo);
+}
+
+.user-menu-dropdown a i {
+    color: var(--azul-claro);
+}
+
+.hidden {
+    display: none;
+}
+
 
 /* 3. Componentes (Cards, Forms, Tables, etc.)
    ----------------------------------------------------------------- */
@@ -298,6 +354,12 @@ body {
 }
 
 /* Forms */
+#user-form-container {
+    padding-top: 2rem;
+    border-top: 1px solid var(--cinza-borda);
+    margin-top: 1.5rem;
+}
+
 .form-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -439,6 +501,44 @@ input:focus, select:focus, textarea:focus {
 .table tbody tr:hover {
     background-color: #eaf5fb; /* Light blue on hover */
 }
+
+.actions-cell {
+    text-align: right;
+}
+
+.action-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 1.1rem;
+    margin-left: 0.5rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.action-icon.edit {
+    background-color: #eaf5fb;
+    color: var(--azul-claro);
+}
+
+.action-icon.edit:hover {
+    background-color: var(--azul-claro);
+    color: var(--branco);
+}
+
+.action-icon.delete {
+    background-color: #fee7e5;
+    color: var(--danger-color);
+}
+
+.action-icon.delete:hover {
+    background-color: var(--danger-color);
+    color: var(--branco);
+}
+
 
 /* 4. Componentes Específicos
    ----------------------------------------------------------------- */
@@ -673,6 +773,48 @@ td.stock-ok, td.stock-warning, td.stock-low { font-weight: 700; }
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--azul-escuro);
+}
+
+/* Seção de Permissões */
+#roles-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.role-card {
+    background-color: var(--branco);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--cinza-borda);
+}
+
+.role-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--cinza-borda);
+}
+
+.role-card-header h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.permissions-list {
+    list-style: none;
+    padding: 0;
+}
+
+.permissions-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
 }
 
 /* 5. Responsividade
@@ -950,4 +1092,37 @@ td.stock-ok, td.stock-warning, td.stock-low { font-weight: 700; }
     .table td {
         white-space: normal;
     }
+}
+
+/* Tabs for reports */
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--cinza-borda);
+}
+
+.tab-btn {
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--cinza-texto);
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.tab-btn.active {
+    color: var(--azul-claro);
+    border-bottom-color: var(--azul-claro);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
 }

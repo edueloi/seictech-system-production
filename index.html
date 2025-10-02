@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/imask"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -26,7 +27,8 @@
     <div class="dashboard-container hidden" id="dashboard-container">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h2>SEICTECH</h2>
+                <img src="images/logo-branco.png" alt="SEICTECH Logo" class="sidebar-logo">
+                <i class="bi bi-shield-check sidebar-icon-collapsed"></i>
             </div>
             <ul class="sidebar-menu">
                 <li class="active" data-section="overview"><i class="bi bi-graph-up-arrow"></i> <span>Visão Geral</span></li>
@@ -37,6 +39,7 @@
                 <li data-section="pdv"><i class="bi bi-cart4"></i> <span>PDV</span></li>
                 <li data-section="reports"><i class="bi bi-file-earmark-bar-graph"></i> <span>Relatórios</span></li>
                 <li data-section="users"><i class="bi bi-person-badge"></i> <span>Cadastro de Usuários</span></li>
+                <li data-section="permissions"><i class="bi bi-shield-lock"></i> <span>Permissões</span></li>
             </ul>
             <div class="sidebar-footer">
                 <button id="collapse-btn">
@@ -50,9 +53,14 @@
             <div class="content-header">
                 <button id="menu-toggle" class="menu-toggle-btn"><i class="bi bi-list"></i></button>
                 <h2 id="section-title">Visão Geral</h2>
-                <div class="user-info">
-                    <span id="user-name-display"></span>
-                    <button class="logout-btn" id="logout-btn"><i class="bi bi-box-arrow-right"></i> Sair</button>
+                <div class="user-menu">
+                    <button id="user-menu-toggle" class="user-menu-toggle">
+                        <i class="bi bi-gear-fill"></i>
+                    </button>
+                    <div id="user-menu-dropdown" class="user-menu-dropdown hidden">
+                        <a href="auth/meu-perfil.html"><i class="bi bi-person"></i> Meu Perfil</a>
+                        <a href="#" id="logout-btn"><i class="bi bi-box-arrow-right"></i> Sair</a>
+                    </div>
                 </div>
             </div>
 
@@ -225,7 +233,7 @@
                                     <th>Custo</th>
                                     <th>Preço</th>
                                     <th>Estoque</th>
-                                    <th>Ações</th>
+                                    <th class="actions-cell">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="products-table-body">
@@ -321,7 +329,7 @@
                                     <th>Estoque Atual</th>
                                     <th>Estoque Mínimo</th>
                                     <th>Status</th>
-                                    <th>Ações</th>
+                                    <th class="actions-cell">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="stock-table-body">
@@ -446,7 +454,7 @@
                                     <th>E-mail</th>
                                     <th>Telefone</th>
                                     <th>WhatsApp</th>
-                                    <th>Ações</th>
+                                    <th class="actions-cell">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="clients-table-body">
@@ -538,7 +546,38 @@
 
             <!-- Seção de Relatórios -->
             <div id="reports-section" class="hidden">
-                <!-- Conteúdo dos relatórios aqui -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="sales-report-tab">Relatório de Vendas</button>
+                    <button class="tab-btn" data-tab="production-report-tab">Relatório de Produção</button>
+                    <button class="tab-btn" data-tab="client-sales-report-tab">Vendas por Cliente</button>
+                </div>
+
+                <div id="sales-report-tab" class="tab-content active">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Relatório de Vendas</h3>
+                        </div>
+                        <!-- Conteúdo do relatório de vendas -->
+                    </div>
+                </div>
+
+                <div id="production-report-tab" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Relatório de Produção</h3>
+                        </div>
+                        <!-- Conteúdo do relatório de produção -->
+                    </div>
+                </div>
+
+                <div id="client-sales-report-tab" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Relatório de Vendas por Cliente</h3>
+                        </div>
+                        <!-- Conteúdo do relatório de vendas por cliente -->
+                    </div>
+                </div>
             </div>
 
             <!-- Seção de Cadastro de Usuários -->
@@ -546,34 +585,45 @@
                 <div class="card">
                     <div class="card-header">
                         <h3>Cadastrar Novo Usuário</h3>
+                        <button id="toggle-user-form-btn" class="btn"><i class="bi bi-plus-lg"></i> Novo Usuário</button>
                     </div>
-                    <form id="user-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="user-name">Nome</label>
-                                <input type="text" id="user-name" required>
+                    <div id="user-form-container" class="hidden">
+                        <form id="user-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="user-nome">Nome</label>
+                                    <input type="text" id="user-nome" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="user-sobrenome">Sobrenome</label>
+                                    <input type="text" id="user-sobrenome" required>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="user-email">E-mail</label>
-                                <input type="email" id="user-email" required>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="user-email">E-mail</label>
+                                    <input type="email" id="user-email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="user-cpf">CPF</label>
+                                    <input type="text" id="user-cpf" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="user-password">Senha</label>
-                                <input type="password" id="user-password" required>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="user-password">Senha</label>
+                                    <input type="password" id="user-password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="user-role">Função</label>
+                                    <select id="user-role" required>
+                                        <!-- As opções de role serão carregadas dinamicamente -->
+                                    </select>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="user-role">Função</label>
-                                <select id="user-role" required>
-                                    <option value="admin">Administrador</option>
-                                    <option value="seller">Vendedor</option>
-                                    <option value="stockist">Estoquista</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn"><i class="bi bi-person-plus"></i> Salvar Usuário</button>
-                    </form>
+                            <button type="submit" class="btn"><i class="bi bi-person-plus"></i> Salvar Usuário</button>
+                        </form>
+                    </div>
                 </div>
 
                 <div class="card">
@@ -581,10 +631,26 @@
                         <h4>Consultar Usuários</h4>
                     </div>
                     <div class="search-container">
-                        <div class="search-input-group form-row" style="margin-top: 1rem;">
-                            <input type="text" id="user-search-input" placeholder="Digite para buscar por nome, e-mail ou função...">
-                            <button type="button" class="btn" id="search-user-btn"><i class="bi bi-search"></i> Buscar</button>
-                            <button type="button" class="btn btn-secondary" id="clear-user-search"><i class="bi bi-eraser"></i> Limpar</button>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="user-search-input">Filtrar por Nome ou E-mail</label>
+                                <input type="text" id="user-search-input" placeholder="Digite nome ou e-mail...">
+                            </div>
+                            <div class="form-group">
+                                <label for="user-role-filter">Filtrar por Função</label>
+                                <select id="user-role-filter">
+                                    <option value="">Todas as Funções</option>
+                                    <!-- As opções de role serão carregadas dinamicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="user-date-filter">Filtrar por Data de Cadastro</label>
+                                <input type="date" id="user-date-filter">
+                            </div>
+                        </div>
+                        <div class="action-buttons" style="margin-top: 1rem; justify-content: flex-start;">
+                            <button type="button" class="btn" id="search-user-btn"><i class="bi bi-search"></i> Aplicar Filtros</button>
+                            <button type="button" class="btn btn-secondary" id="clear-user-search"><i class="bi bi-eraser"></i> Limpar Filtros</button>
                         </div>
                     </div>
                 </div>
@@ -600,7 +666,8 @@
                                     <th>Nome</th>
                                     <th>E-mail</th>
                                     <th>Função</th>
-                                    <th>Ações</th>
+                                    <th>Data Cadastro</th>
+                                    <th class="actions-cell">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="users-table-body">
@@ -610,6 +677,19 @@
                     </div>
                 </div>
 
+            </div>
+
+            <!-- Seção de Permissões -->
+            <div id="permissions-section" class="hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Gerenciar Funções e Permissões</h3>
+                        <button id="add-role-btn" class="btn"><i class="bi bi-plus-lg"></i> Nova Função</button>
+                    </div>
+                    <div id="roles-container">
+                        <!-- Funções e permissões serão carregadas aqui -->
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -657,9 +737,7 @@
                 <div class="form-group">
                     <label for="edit-user-role-select">Nova Permissão</label>
                     <select id="edit-user-role-select">
-                        <option value="admin">Administrador</option>
-                        <option value="seller">Vendedor</option>
-                        <option value="stockist">Estoquista</option>
+                        <!-- As opções de role serão carregadas dinamicamente -->
                     </select>
                 </div>
             </div>

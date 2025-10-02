@@ -1,4 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const API_URL = 'http://localhost:3000/api';
+  const token = sessionStorage.getItem('authToken');
+  let editingUserUuid = null; // Use UUID for editing
+
+  // --- Autenticação ---
+  if (sessionStorage.getItem('isLoggedIn') !== 'true' || !token) {
+      window.location.href = 'auth/login.html';
+      return;
+  }
+
   // Lógica para menu responsivo (mobile)
   const menuToggle = document.getElementById("menu-toggle");
   const sidebar = document.getElementById("sidebar");
@@ -25,6 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logout-btn");
   const userEmailDisplay = document.getElementById("user-email-display");
   const userNameDisplay = document.getElementById("user-name-display");
+  const userMenuToggle = document.getElementById("user-menu-toggle");
+  const userMenuDropdown = document.getElementById("user-menu-dropdown");
 
   const sidebarMenuItems = document.querySelectorAll(".sidebar-menu li");
   const overviewSection = document.getElementById("overview-section");
@@ -173,8 +185,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Consulta de clientes
   const searchClientName = document.getElementById("search-client-name");
-  const searchClientCpf = document.getElementById("search-client-cpf");
-  const searchClientCnpj = document.getElementById("search-client-cnpj");
+  const searchClientCpf = document.getElementById("client-cpf");
+  const searchClientCnpj = document.getElementById("client-cnpj");
   const searchClientAll = document.getElementById("search-client-all");
   const clientSearchInput = document.getElementById("client-search-input");
   const searchClientBtn = document.getElementById("search-client-btn");
@@ -196,6 +208,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const userSearchInput = document.getElementById("user-search-input");
   const searchUserBtn = document.getElementById("search-user-btn");
   const clearUserSearch = document.getElementById("clear-user-search");
+  const userRoleSelect = document.getElementById('user-role');
+  const toggleUserFormBtn = document.getElementById('toggle-user-form-btn');
+  const userFormContainer = document.getElementById('user-form-container');
 
   const editUserRoleModal = document.getElementById("edit-user-role-modal");
   const editUserRoleModalUserName = document.getElementById(
@@ -214,7 +229,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "edit-user-role-modal-confirm-btn"
   );
 
-  let editingUserId = null;
 
   // Dados da aplicação
   let products = JSON.parse(localStorage.getItem("products")) || [];
@@ -223,16 +237,36 @@ document.addEventListener("DOMContentLoaded", () => {
     JSON.parse(localStorage.getItem("stockMovements")) || [];
   let clients = JSON.parse(localStorage.getItem("clients")) || [];
   let sales = JSON.parse(localStorage.getItem("sales")) || [];
-  let users = JSON.parse(localStorage.getItem("users")) || [];
   let currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
   let currentProduction = null;
   let cart = [];
+
+  // Exibir o nome do usuário
+  if (currentUser && userNameDisplay) {
+    userNameDisplay.textContent = currentUser.nome;
+  }
+
+  // Lógica do menu de usuário
+  if (userMenuToggle) {
+    userMenuToggle.addEventListener("click", (e) => {
+      e.stopPropagation(); // Impede que o evento de clique na janela feche o menu imediatamente
+      userMenuDropdown.classList.toggle("hidden");
+    });
+  }
+
+  // Fechar o menu de usuário se clicar fora dele
+  window.addEventListener("click", () => {
+    if (userMenuDropdown && !userMenuDropdown.classList.contains("hidden")) {
+      userMenuDropdown.classList.add("hidden");
+    }
+  });
 
   // Logout
   logoutBtn.addEventListener("click", () => {
     // Clear session storage flag
     sessionStorage.removeItem("isLoggedIn");
     sessionStorage.removeItem("currentUser");
+    sessionStorage.removeItem("authToken");
     // Redirect to login page
     window.location.href = "auth/login.html";
   });
@@ -289,6 +323,7 @@ document.addEventListener("DOMContentLoaded", () => {
       title: "Cadastro de Usuários",
       onShow: () => {
         loadUsersTable();
+        loadRolesForRegistration();
       },
     },
   };
@@ -462,13 +497,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>R$ ${product.cost.toFixed(2)}</td>
                     <td>R$ ${product.price.toFixed(2)}</td>
                     <td class="${stockClass}">${product.stock}</td>
-                    <td>
-                        <button class="btn btn-secondary" onclick="editProduct('${
+                    <td class="actions-cell">
+                        <a href="#" class="action-icon" onclick="editProduct('${
                           product.id
-                        }')">Editar</button>
-                        <button class="btn btn-danger" onclick="deleteProduct('${
+                        }')" title="Editar"><i class="bi bi-pencil-fill"></i></a>
+                        <a href="#" class="action-icon" onclick="deleteProduct('${
                           product.id
-                        }')">Excluir</button>
+                        }')" title="Excluir"><i class="bi bi-trash-fill"></i></a>
                     </td>
                 `;
       productsTableBody.appendChild(row);
@@ -601,11 +636,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Salvar vendas no localStorage
   function saveSales() {
     localStorage.setItem("sales", JSON.stringify(sales));
-  }
-
-  // Salvar usuários no localStorage
-  function saveUsers() {
-    localStorage.setItem("users", JSON.stringify(users));
   }
 
   // Adicionar ingrediente à receita
@@ -983,8 +1013,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="${stockClass}">${product.stock}</td>
                     <td>${product.minStock}</td>
                     <td>${stockStatus}</td>
-                    <td>
-                        <button class="btn btn-secondary" onclick="adjustStock('${product.id}')">Ajustar Estoque</button>
+                    <td class="actions-cell">
+                        <a href="#" class="action-icon" onclick="adjustStock('${product.id}')" title="Ajustar Estoque"><i class="bi bi-pencil-fill"></i></a>
                     </td>
                 `;
       stockTableBody.appendChild(row);
@@ -1154,9 +1184,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>${client.email}</td>
                     <td>${client.phone}</td>
                     <td>${client.whatsapp}</td>
-                    <td>
-                        <button class="btn btn-secondary" onclick="editClient('${client.id}')">Editar</button>
-                        <button class="btn btn-danger" onclick="deleteClient('${client.id}')">Excluir</button>
+                    <td class="actions-cell">
+                        <a href="#" class="action-icon" onclick="editClient('${client.id}')" title="Editar"><i class="bi bi-pencil-fill"></i></a>
+                        <a href="#" class="action-icon" onclick="deleteClient('${client.id}')" title="Excluir"><i class="bi bi-trash-fill"></i></a>
                     </td>
                 `;
       clientsTableBody.appendChild(row);
@@ -2320,6 +2350,78 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // =================================================================
+  // Funções de Usuário
+  // =================================================================
+
+  if (toggleUserFormBtn) {
+    toggleUserFormBtn.addEventListener('click', () => {
+        userFormContainer.classList.toggle('hidden');
+    });
+  }
+
+  async function loadRolesForRegistration() {
+    try {
+        const response = await fetch(`${API_URL}/roles`, {
+            headers: { 'x-auth-token': token }
+        });
+        if (!response.ok) {
+            throw new Error('Falha ao carregar funções.');
+        }
+        const roles = await response.json();
+        const userRoleSelect = document.getElementById('user-role');
+        userRoleSelect.innerHTML = '<option value="">Selecione uma função</option>';
+        roles.forEach(role => {
+            const option = document.createElement('option');
+            option.value = role.id;
+            option.textContent = role.nome;
+            userRoleSelect.appendChild(option);
+        });
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+  }
+
+  if (userForm) {
+    userForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userData = {
+            nome: document.getElementById('user-nome').value,
+            sobrenome: document.getElementById('user-sobrenome').value,
+            email: document.getElementById('user-email').value,
+            cpf: document.getElementById('user-cpf').value,
+            senha: document.getElementById('user-password').value,
+            role_id: document.getElementById('user-role').value,
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token
+                },
+                body: JSON.stringify(userData)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Falha ao criar usuário.');
+            }
+
+            showNotification('Usuário criado com sucesso!', 'success');
+            userForm.reset();
+            userFormContainer.classList.add('hidden');
+            loadUsersTable();
+
+        } catch (error) {
+            showNotification(error.message, 'error');
+        }
+    });
+  }
+
+
   // Consulta de usuários
   if (searchUserBtn) {
     searchUserBtn.addEventListener("click", searchUsers);
@@ -2331,45 +2433,73 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function searchUsers() {
+  async function searchUsers() {
     const searchTerm = userSearchInput.value.toLowerCase();
-    const filteredUsers = users.filter(
-      (user) =>
-        user.name.toLowerCase().includes(searchTerm) ||
-        user.email.toLowerCase().includes(searchTerm) ||
-        getRoleText(user.role).toLowerCase().includes(searchTerm)
-    );
-    loadUsersTable(filteredUsers);
+    try {
+      const response = await fetch(`${API_URL}/users?search=${searchTerm}`, {
+        headers: { 'x-auth-token': token },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Falha ao buscar usuários.');
+      }
+      const usersFromDB = await response.json();
+      renderUsersTable(usersFromDB);
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
   }
 
   // Carregar usuários na tabela
-  function loadUsersTable(usersToLoad = users) {
+  async function loadUsersTable() {
+    try {
+      const response = await fetch(`${API_URL}/users`, {
+        headers: { 'x-auth-token': token },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Falha ao carregar usuários.');
+      }
+
+      const usersFromDB = await response.json();
+      renderUsersTable(usersFromDB);
+
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
+  }
+
+  function renderUsersTable(usersToLoad) {
     if (usersTableBody) {
       usersTableBody.innerHTML = "";
 
       if (usersToLoad.length === 0) {
         usersTableBody.innerHTML =
-          '<tr><td colspan="4" style="text-align: center;">Nenhum usuário encontrado</td></tr>';
+          '<tr><td colspan="5" style="text-align: center;">Nenhum usuário encontrado</td></tr>';
         return;
       }
 
       usersToLoad.forEach((user) => {
         const row = document.createElement("tr");
-        const roleText = getRoleText(user.role);
+        const roleText = user.role_name || 'N/A';
+        const registrationDate = new Date(user.data_cadastro).toLocaleDateString('pt-BR');
 
         row.innerHTML = `
-                        <td>${user.name}</td>
+                        <td>${user.nome} ${user.sobrenome}</td>
                         <td>${user.email}</td>
                         <td>${roleText}</td>
-                        <td>
-                            <button class="btn btn-secondary" onclick="editUser('${user.id}')">Editar</button>
-                            <button class="btn btn-danger" onclick="deleteUser('${user.id}')">Excluir</button>
+                        <td>${registrationDate}</td>
+                        <td class="actions-cell">
+                            <a href="#" class="action-icon" onclick="editUser('${user.uuid}')" title="Editar Permissão"><i class="bi bi-pencil-fill"></i></a>
+                            <a href="#" class="action-icon" onclick="deleteUser('${user.uuid}')" title="Excluir"><i class="bi bi-trash-fill"></i></a>
                         </td>
                     `;
         usersTableBody.appendChild(row);
       });
     }
   }
+
 
   function getRoleText(role) {
     switch (role) {
@@ -2401,19 +2531,30 @@ document.addEventListener("DOMContentLoaded", () => {
         editUserRoleModal.classList.add("hidden");
       });
 
-      editUserRoleModalConfirmBtn.addEventListener("click", () => {
-        const user = users.find((u) => u.id === editingUserId);
-        if (user) {
-          user.role = editUserRoleModalSelect.value;
-          saveUsers();
-          loadUsersTable();
-          showNotification(
-            "Permissão de usuário atualizada com sucesso!",
-            "success"
-          );
+      editUserRoleModalConfirmBtn.addEventListener("click", async () => {
+        try {
+            const response = await fetch(`${API_URL}/users/${editingUserUuid}/role`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token
+                },
+                body: JSON.stringify({ roleId: editUserRoleModalSelect.value })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Falha ao atualizar permissão.');
+            }
+
+            showNotification("Permissão de usuário atualizada com sucesso!", "success");
+            loadUsersTable();
+            editUserRoleModal.classList.add("hidden");
+
+        } catch (error) {
+            showNotification(error.message, 'error');
         }
-        editUserRoleModal.classList.add("hidden");
-      });
+    });
     }
 
     // Adicionar um ingrediente inicial
@@ -2454,6 +2595,20 @@ document.addEventListener("DOMContentLoaded", () => {
       updateProductionProductSelect();
       updateClientSalesClientSelect();
       updateOverviewCards();
+    }
+
+    // Aplicar máscaras
+    const userCpfInput = document.getElementById('user-cpf');
+    if (userCpfInput) {
+        IMask(userCpfInput, { mask: '000.000.000-00' });
+    }
+    const clientCpfInput = document.getElementById('client-cpf');
+    if (clientCpfInput) {
+        IMask(clientCpfInput, { mask: '000.000.000-00' });
+    }
+    const clientCnpjInput = document.getElementById('client-cnpj');
+    if (clientCnpjInput) {
+        IMask(clientCnpjInput, { mask: '00.000.000/0000-00' });
     }
 
     const loadingOverlay = document.getElementById("loading-overlay");
@@ -2541,6 +2696,25 @@ document.addEventListener("DOMContentLoaded", () => {
   // Funções da Visão Geral
   // =================================================================
 
+  async function updateUsersSummary() {
+    try {
+      const response = await fetch(`${API_URL}/users`, {
+        headers: { 'x-auth-token': token },
+      });
+      if (!response.ok) {
+        console.error('Falha ao carregar o total de usuários.');
+        totalUsersSummary.textContent = 'N/A';
+        return;
+      }
+      const usersFromDB = await response.json();
+      totalUsersSummary.textContent = usersFromDB.length;
+    } catch (error) {
+      console.error('Erro ao buscar total de usuários:', error);
+      totalUsersSummary.textContent = 'N/A';
+    }
+  }
+
+
   function updateOverviewCards() {
     // Total de Produtos
     totalProductsSummary.textContent = products.length;
@@ -2548,8 +2722,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Total de Clientes
     totalClientsSummary.textContent = clients.length;
 
-    // Total de Usuários (simulado, pois não há cadastro de múltiplos usuários)
-    totalUsersSummary.textContent = users.length > 0 ? users.length : 1;
+    // Total de Usuários
+    updateUsersSummary();
 
     // Total de Vendas
     const totalSalesValue = sales.reduce((acc, sale) => acc + sale.total, 0);
@@ -2794,25 +2968,70 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  window.editUser = function (id) {
-    const user = users.find((u) => u.id === id);
-    if (!user) return;
+  async function loadRolesForEditModal() {
+    try {
+        const response = await fetch(`${API_URL}/roles`, {
+            headers: { 'x-auth-token': token }
+        });
+        if (!response.ok) {
+            throw new Error('Falha ao carregar funções para edição.');
+        }
+        const roles = await response.json();
+        const editUserRoleSelect = document.getElementById('edit-user-role-select');
+        editUserRoleSelect.innerHTML = ''; // Limpa opções existentes
+        roles.forEach(role => {
+            const option = document.createElement('option');
+            option.value = role.id;
+            option.textContent = role.nome;
+            editUserRoleSelect.appendChild(option);
+        });
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+  }
 
-    editingUserId = id;
-    editUserRoleModalUserName.textContent = user.name;
-    editUserRoleModalSelect.value = user.role;
-    editUserRoleModal.classList.remove("hidden");
+  window.editUser = async function (uuid) {
+    try {
+        await loadRolesForEditModal(); // Carrega as funções no modal primeiro
+
+        const response = await fetch(`${API_URL}/users/${uuid}`, {
+            headers: { 'x-auth-token': token }
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Falha ao carregar usuário.');
+        }
+        const user = await response.json();
+        
+        editingUserUuid = uuid;
+        editUserRoleModalUserName.textContent = user.nome;
+        editUserRoleModalSelect.value = user.role_id;
+        editUserRoleModal.classList.remove("hidden");
+
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
   };
 
-  window.deleteUser = function (id) {
-    const user = users.find((u) => u.id === id);
-    if (!user) return;
+  window.deleteUser = function (uuid) {
+    showConfirmationModal(`Excluir Usuário`, async () => {
+        try {
+            const response = await fetch(`${API_URL}/users/${uuid}`, {
+                method: 'DELETE',
+                headers: { 'x-auth-token': token }
+            });
 
-    showConfirmationModal(`Excluir Usuário: "${user.name}"`, () => {
-      users = users.filter((u) => u.id !== id);
-      saveUsers();
-      loadUsersTable();
-      showNotification("Usuário excluído com sucesso!", "success");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Falha ao excluir usuário.');
+            }
+
+            showNotification("Usuário excluído com sucesso!", "success");
+            loadUsersTable();
+
+        } catch (error) {
+            showNotification(error.message, 'error');
+        }
     });
   };
 });

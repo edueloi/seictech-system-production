@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const API_URL = 'http://localhost:3000/api';
+
     // --- SELEÇÃO DOS ELEMENTOS DO DOM ---
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('login-email');
@@ -8,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const yearSpan = document.getElementById('year');
     const notificationContainer = document.getElementById('notification-container');
 
-    // --- NOVOS ELEMENTOS PARA RECUPERAÇÃO DE SENHA ---
+    // --- ELEMENTOS PARA RECUPERAÇÃO DE SENHA ---
     const recoveryForm = document.getElementById('recoveryForm');
     const forgotPasswordLink = document.getElementById('forgotPasswordLink');
     const backToLoginLink = document.getElementById('backToLoginLink');
@@ -19,75 +21,77 @@ document.addEventListener('DOMContentLoaded', () => {
         toast.classList.add('toast', type);
 
         const iconClass = type === 'success' ? 'fa-solid fa-check-circle' : 'fa-solid fa-exclamation-circle';
-        toast.innerHTML = `
-            <i class="${iconClass}"></i>
-            <span>${message}</span>
-        `;
+        toast.innerHTML = `<i class="${iconClass}"></i><span>${message}</span>`;
         
         notificationContainer.appendChild(toast);
 
-        // Define um tempo para a notificação desaparecer
         setTimeout(() => {
             toast.classList.add('exiting');
-            toast.addEventListener('animationend', () => {
-                toast.remove();
-            });
+            toast.addEventListener('animationend', () => toast.remove());
         }, 3000);
     }
 
     // --- LÓGICAS DA PÁGINA ---
-
-    // Define o ano atual no rodapé
     if (yearSpan) {
         yearSpan.textContent = new Date().getFullYear();
     }
 
-    // Carrega o e-mail salvo no localStorage, se houver
     const savedEmail = localStorage.getItem('rememberedEmail');
     if (savedEmail) {
         emailInput.value = savedEmail;
         rememberCheckbox.checked = true;
     }
 
-    // Funcionalidade para mostrar/ocultar a senha
     if (togglePassword) {
         togglePassword.addEventListener('click', () => {
             const isPassword = passwordInput.type === 'password';
             const icon = togglePassword.querySelector('i');
-
             passwordInput.type = isPassword ? 'text' : 'password';
             icon.classList.toggle('fa-eye', isPassword);
             icon.classList.toggle('fa-eye-slash', !isPassword);
-            togglePassword.setAttribute('aria-label', isPassword ? 'Ocultar senha' : 'Mostrar senha');
         });
     }
 
-    // Manipulação do envio do formulário de LOGIN
+    // --- SUBMISSÃO DO FORMULÁRIO DE LOGIN ---
     if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             if (!emailInput.value || !passwordInput.value) {
-                showNotification('Por favor, preencha e-mail e senha.', 'error');
-                return;
+                return showNotification('Por favor, preencha e-mail e senha.', 'error');
             }
 
-            if (rememberCheckbox.checked) {
-                localStorage.setItem('rememberedEmail', emailInput.value);
-            } else {
-                localStorage.removeItem('rememberedEmail');
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailInput.value, password: passwordInput.value })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Erro ao fazer login.');
+                }
+
+                if (rememberCheckbox.checked) {
+                    localStorage.setItem('rememberedEmail', emailInput.value);
+                } else {
+                    localStorage.removeItem('rememberedEmail');
+                }
+
+                sessionStorage.setItem('authToken', data.token);
+                sessionStorage.setItem('isLoggedIn', 'true');
+                showNotification('Login bem-sucedido! Redirecionando...');
+                setTimeout(() => window.location.href = '../index.html', 1500);
+
+            } catch (error) {
+                showNotification(error.message, 'error');
             }
-            
-            showNotification('Login bem-sucedido! Redirecionando...');
-            sessionStorage.setItem('isLoggedIn', 'true');
-            
-            window.location.href = '../index.html';
         });
     }
     
-    // --- LÓGICA PARA TROCAR ENTRE FORMULÁRIOS ---
-
-    // Quando clicar em "Esqueci minha senha"
+    // --- LÓGICA PARA TROCAR ENTRE FORMULÁRIOS DE LOGIN E RECUPERAÇÃO ---
     if (forgotPasswordLink) {
         forgotPasswordLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -96,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Quando clicar em "Voltar para o login"
     if (backToLoginLink) {
         backToLoginLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -105,26 +108,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Manipulação do envio do formulário de RECUPERAÇÃO
+    // --- SUBMISSÃO DO FORMULÁRIO DE RECUPERAÇÃO ---
     if (recoveryForm) {
-        recoveryForm.addEventListener('submit', (e) => {
+        recoveryForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const recoveryEmailInput = document.getElementById('recovery-email');
 
             if (!recoveryEmailInput.value) {
-                showNotification('Por favor, digite um e-mail.', 'error');
-                return;
+                return showNotification('Por favor, digite um e-mail.', 'error');
             }
 
-            // Exibe a mensagem de sucesso
-            showNotification('Um e-mail com instruções para recuperar sua senha foi enviado.');
+            try {
+                const response = await fetch(`${API_URL}/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: recoveryEmailInput.value })
+                });
 
-            // Opcional: Volta para a tela de login após a mensagem
-            setTimeout(() => {
-                recoveryForm.classList.add('hidden');
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Erro ao solicitar recuperação.');
+                }
+
+                showNotification('Se o e-mail existir, uma instrução será enviada.');
+                recoveryForm.reset();
                 loginForm.classList.remove('hidden');
-                recoveryEmailInput.value = ''; // Limpa o campo
-            }, 3500);
+                recoveryForm.classList.add('hidden');
+
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
         });
     }
 });

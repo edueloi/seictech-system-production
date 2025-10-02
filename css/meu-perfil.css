@@ -1,0 +1,102 @@
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --background-color: #f4f7f6;
+    --card-background: #ffffff;
+    --text-color: #333;
+    --border-color: #dee2e6;
+}
+
+.profile-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.profile-container h1 {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+#profile-form .form-group {
+    margin-bottom: 1rem;
+}
+
+#profile-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--secondary-color);
+}
+
+#profile-form input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+#profile-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Adiciona espaçamento entre as seções do formulário para melhor organização */
+.profile-section {
+    margin-bottom: 2.5rem;
+}
+
+.profile-section h4 {
+    color: var(--azul-escuro);
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Garante que a linha horizontal não tenha margem excessiva */
+.profile-section hr {
+    margin-bottom: 1.5rem;
+    border: 0;
+    border-top: 1px solid var(--cinza-borda);
+}
+
+/* Contêiner para os botões de ação */
+.profile-actions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--cinza-borda);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Para telas pequenas */
+    gap: 1rem;
+}
+
+/* O botão de salvar fica à esquerda e o de deletar à direita */
+.profile-actions .btn-danger {
+    margin-left: auto;
+}

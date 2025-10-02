@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - SEICTECH Clean</title>
+    <link rel="icon" type="image/png" href="../images/icon-seictech.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../css/login.css" />
+</head>
+<body>
+
+    <main class="layout">
+        <section class="left">
+            <a class="brand" href="#" aria-label="Página inicial">
+                <img src="../images/logo-branco.png" alt="Logo SEICTECH" class="brand-logo">
+            </a>
+
+            <div class="card">
+                <header class="card-header">
+                    <h1>Bem-vindo de volta</h1>
+                    <p>Entre na sua conta para continuar.</p>
+                </header>
+
+                <div id="login-message" class="message hidden" role="alert"></div>
+
+                <form id="loginForm" novalidate>
+                    <div class="form-group floating">
+                        <input type="email" id="login-email" placeholder=" " autocomplete="username" required />
+                        <label for="login-email">E-mail</label>
+                    </div>
+
+                    <div class="form-group floating">
+                        <input type="password" id="login-password" placeholder=" " autocomplete="current-password" required />
+                        <label for="login-password">Senha</label>
+                        <button type="button" id="togglePassword" class="peek" aria-label="Mostrar senha">
+                            <i class="fa-regular fa-eye-slash"></i>
+                        </button>
+                    </div>
+
+                    <div class="options">
+                        <label class="checkbox">
+                            <input type="checkbox" id="remember-password" />
+                            <span>Salvar login</span>
+                        </label>
+                        <a href="#" class="link">Esqueci minha senha</a>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        Entrar
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <footer class="foot">
+                <small>© <span id="year"></span> SEICTECH. Todos os direitos reservados.</small>
+            </footer>
+        </section>
+
+        <section class="right">
+            <div class="hero">
+                <img src="/images/image-control-production.png" alt="Painel de produção industrial" />
+                <div class="hero-overlay">
+                    <h2 class="grad-title">Tecnologia que acelera</h2>
+                    <p class="hero-sub">Monitore, analise e decida com segurança — tudo em um só lugar.</p>
+                    <div class="hero-badges">
+                        <span class="badge"><i class="fa-solid fa-shield-halved"></i> SSO & 2FA</span>
+                        <span class="badge"><i class="fa-solid fa-bolt"></i> Realtime</span>
+                        <span class="badge"><i class="fa-solid fa-chart-line"></i> KPIs</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+     <div id="notification-container"></div>
+    <script src="../js/login.js"></script>
+</body>
+</html>

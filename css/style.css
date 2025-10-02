@@ -775,6 +775,122 @@ td.stock-ok, td.stock-warning, td.stock-low { font-weight: 700; }
     color: var(--azul-escuro);
 }
 
+/* PDV Controls */
+.pdv-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.search-and-filter {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.view-switcher {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-switcher .btn {
+    padding: 0.5rem 0.75rem;
+}
+
+.view-switcher .btn.active {
+    background-color: var(--azul-escuro);
+    color: var(--branco);
+}
+
+/* Products Display */
+.products-display-container {
+    position: relative;
+    margin-top: 1.5rem;
+}
+
+.products-view {
+    display: none;
+}
+
+.products-view.active {
+    display: grid; /* Changed to grid for consistency */
+}
+
+#products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+}
+
+#products-list {
+    grid-template-columns: 1fr; /* Single column for list view */
+    gap: 0.5rem;
+}
+
+.product-list-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background-color: var(--branco);
+    border-radius: 0.5rem;
+    border: 1px solid var(--cinza-borda);
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-list-item:hover {
+    background-color: #eaf5fb;
+    box-shadow: var(--shadow-md);
+}
+
+.product-list-item-image,
+.product-list-item .no-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    flex-shrink: 0;
+}
+
+.product-list-item .no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cinza-fundo);
+    color: var(--cinza-texto);
+    font-size: 0.8rem;
+}
+
+.product-list-item-info {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.product-list-item-info h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.product-list-item-details {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--cinza-texto);
+}
+
+
+/* Tabs for reports */
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--cinza-borda);
+}
+
 /* Seção de Permissões */
 #roles-container {
     display: grid;
@@ -1125,4 +1241,407 @@ td.stock-ok, td.stock-warning, td.stock-low { font-weight: 700; }
 
 .tab-content.active {
     display: block;
+}
+
+/* =================================================================
+   PDV - ESTILOS ADICIONAIS
+   ================================================================= */
+
+/* Controles do PDV */
+.pdv-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.search-and-filter {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    flex-grow: 1;
+}
+
+.search-and-filter .form-group {
+    margin-bottom: 0;
+}
+
+.search-and-filter .btn {
+    align-self: flex-end;
+    height: 44px; /* Alinha com a altura do input */
+}
+
+.view-switcher {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-switcher .btn {
+    padding: 0.5rem 0.75rem;
+    background-color: var(--cinza-fundo);
+    color: var(--cinza-texto);
+    border: 1px solid var(--cinza-borda);
+}
+
+.view-switcher .btn:hover {
+    background-color: var(--cinza-borda);
+}
+
+.view-switcher .btn.active {
+    background-color: var(--azul-escuro);
+    color: var(--branco);
+    border-color: var(--azul-escuro);
+}
+
+/* Container de Exibição dos Produtos */
+.products-display-container {
+    margin-top: 1.5rem;
+    overflow-y: auto;
+    /* Ajuste a altura conforme necessário para o seu layout */
+    height: calc(100vh - 220px); 
+    padding-right: 10px;
+}
+
+.products-view {
+    display: none;
+}
+
+.products-view.active {
+    display: grid;
+}
+
+#products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+}
+
+/* Estilos para a Visualização em Lista */
+#products-list {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+.product-list-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background-color: var(--branco);
+    border-radius: 0.5rem;
+    border: 1px solid var(--cinza-borda);
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-list-item:hover {
+    background-color: #eaf5fb;
+    box-shadow: var(--shadow-md);
+    border-left: 4px solid var(--azul-claro);
+    padding-left: calc(0.75rem - 4px);
+}
+
+.product-list-item-image,
+.product-list-item .no-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    flex-shrink: 0;
+}
+
+.product-list-item .no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cinza-fundo);
+    color: var(--cinza-texto);
+    font-size: 0.8rem;
+}
+
+.product-list-item-info {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.product-list-item-info h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: var(--azul-escuro);
+}
+
+.product-list-item-details {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--cinza-texto);
+}
+
+/* Melhorias no Carrinho */
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-item-info {
+    flex-grow: 1;
+}
+.cart-item-name {
+    font-weight: 600;
+    color: var(--texto-primario);
+}
+.cart-item-details {
+    font-size: 0.8rem;
+    color: var(--cinza-texto);
+}
+
+.cart-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cart-item-controls .quantity-btn {
+    background-color: var(--cinza-fundo);
+    border: 1px solid var(--cinza-borda);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--cinza-texto);
+}
+.cart-item-controls .quantity-btn:hover {
+    background-color: var(--cinza-borda);
+}
+
+.cart-item-quantity {
+    width: 40px;
+    text-align: center;
+    padding: 0.25rem;
+    border-radius: 4px;
+    border: 1px solid var(--cinza-borda);
+}
+
+.cart-item-remove-btn {
+    background: none;
+    border: none;
+    color: var(--danger-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+/* =================================================================
+   PDV - ESTILOS DOS ITENS NO CARRINHO
+   ================================================================= */
+
+#pdv-section .cart-item {
+    display: grid;
+    grid-template-columns: 1fr auto; /* Coluna para info, coluna para controles */
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem 0.5rem;
+    border-bottom: 1px solid var(--cinza-borda);
+}
+
+#pdv-section .cart-item:last-child {
+    border-bottom: none;
+}
+
+#pdv-section .cart-item-info .cart-item-name {
+    font-weight: 600;
+    color: var(--texto-primario);
+}
+
+#pdv-section .cart-item-info .cart-item-details {
+    font-size: 0.8rem;
+    color: var(--cinza-texto);
+    margin: 0.25rem 0;
+}
+
+#pdv-section .cart-item-info .cart-item-total strong {
+    font-size: 0.9rem;
+    color: var(--azul-escuro);
+}
+
+#pdv-section .cart-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--cinza-fundo);
+    border: 1px solid var(--cinza-borda);
+    border-radius: 99px; /* Bordas arredondadas */
+    padding: 5px;
+}
+
+#pdv-section .cart-item-controls .quantity-btn {
+    background-color: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    font-weight: 600;
+    color: var(--cinza-texto);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+#pdv-section .cart-item-controls .quantity-btn:hover {
+    background-color: var(--azul-claro);
+    color: var(--branco);
+    border-color: var(--azul-claro);
+}
+
+#pdv-section .cart-item-controls .cart-item-quantity {
+    width: 35px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    font-weight: 600;
+    color: var(--azul-escuro);
+    font-size: 1rem;
+    /* Remove as setas padrão do input number */
+    -moz-appearance: textfield;
+}
+
+#pdv-section .cart-item-controls .cart-item-quantity::-webkit-outer-spin-button,
+#pdv-section .cart-item-controls .cart-item-quantity::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#pdv-section .cart-item-controls .cart-item-remove-btn {
+    background: none;
+    border: none;
+    color: var(--cinza-texto);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    transition: color 0.2s;
+}
+#pdv-section .cart-item-controls .cart-item-remove-btn:hover {
+    color: var(--danger-color);
+}
+
+/* =================================================================
+   PDV - REFINAMENTO VISUAL DOS ITENS NO CARRINHO (VERSÃO FINAL)
+   ================================================================= */
+
+#pdv-section .cart-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    position: relative; /* Necessário para o botão de remover */
+    background-color: var(--cinza-fundo);
+    border-radius: var(--border-radius);
+    margin-bottom: 0.75rem; /* Espaçamento entre os itens */
+    border: 1px solid var(--cinza-borda);
+}
+
+#pdv-section .cart-item-info .cart-item-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--texto-primario);
+}
+
+#pdv-section .cart-item-info .cart-item-details {
+    font-size: 0.85rem;
+    color: var(--cinza-texto);
+    margin: 0.25rem 0;
+}
+
+#pdv-section .cart-item-info .cart-item-total strong {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--azul-escuro);
+}
+
+#pdv-section .cart-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: transparent; /* Remove o fundo da "pílula" */
+    border: none; /* Remove a borda da "pílula" */
+    padding: 0;
+}
+
+#pdv-section .cart-item-controls .quantity-btn {
+    background-color: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    width: 36px;  /* Botões maiores */
+    height: 36px; /* Botões maiores */
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem; /* Símbolos maiores */
+    line-height: 1;
+    font-weight: 400;
+    color: var(--cinza-texto);
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+#pdv-section .cart-item-controls .quantity-btn:hover {
+    background-color: var(--azul-claro);
+    color: var(--branco);
+    border-color: var(--azul-claro);
+    transform: scale(1.1);
+}
+
+#pdv-section .cart-item-controls .cart-item-quantity {
+    width: 40px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    font-weight: 700;
+    color: var(--azul-escuro);
+    font-size: 1.2rem;
+    padding: 0;
+    /* Remove as setas padrão do input number */
+    -moz-appearance: textfield;
+}
+
+#pdv-section .cart-item-controls .cart-item-quantity::-webkit-outer-spin-button,
+#pdv-section .cart-item-controls .cart-item-quantity::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Botão de remover reposicionado no canto superior direito */
+#pdv-section .cart-item-controls .cart-item-remove-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--cinza-texto);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+#pdv-section .cart-item-controls .cart-item-remove-btn:hover {
+    color: var(--danger-color);
+    background-color: #fee7e5;
+}
+
+/* =================================================================
+   PDV - ESTILOS PARA ETIQUETAS DE TIPO DE PRODUTO
+   ================================================================= */
+
+.product-card-badge {
+    margin-top: 0.5rem; /* Espaçamento acima da etiqueta no card */
+}
+
+.product-list-item-badge {
+    flex-shrink: 0; /* Impede que a etiqueta seja espremida */
+    margin-left: auto; /* Alinha a etiqueta à direita no item da lista */
 }

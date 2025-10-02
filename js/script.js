@@ -77,6 +77,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchProductPdvBtn = document.getElementById("search-product-pdv-btn");
   const productTypeFilter = document.getElementById("product-type-filter");
   const productsGrid = document.getElementById("products-grid");
+  const productsList = document.getElementById("products-list");
+  const gridViewBtn = document.getElementById("grid-view-btn");
+  const listViewBtn = document.getElementById("list-view-btn");
   const cartItems = document.getElementById("cart-items");
   const cartSubtotal = document.getElementById("cart-subtotal");
   const discountInput = document.getElementById("discount");
@@ -246,6 +249,72 @@ document.addEventListener("DOMContentLoaded", () => {
     userNameDisplay.textContent = currentUser.nome;
   }
 
+  // Controla a troca de visualização (Grid/Lista)
+if (gridViewBtn && listViewBtn) {
+    gridViewBtn.addEventListener('click', () => {
+        gridViewBtn.classList.add('active');
+        listViewBtn.classList.remove('active');
+        productsGrid.classList.add('active');
+        productsList.classList.remove('active');
+    });
+
+    listViewBtn.addEventListener('click', () => {
+        listViewBtn.classList.add('active');
+        gridViewBtn.classList.remove('active');
+        productsList.classList.add('active');
+        productsGrid.classList.remove('active');
+    });
+}
+
+// Filtra os produtos ao digitar ou mudar o tipo
+productSearch.addEventListener('input', loadProductsToViews);
+productTypeFilter.addEventListener('change', loadProductsToViews);
+
+// Limpa o carrinho
+clearCartBtn.addEventListener('click', () => {
+    cart = [];
+    discountInput.value = '0';
+    updateCartDisplay();
+});
+
+// Ações no carrinho (aumentar, diminuir, remover) - VERSÃO CORRIGIDA E MAIS ROBUSTA
+cartItems.addEventListener('click', (e) => {
+    // Procura pelo botão mais próximo que foi clicado, seja o botão em si ou o ícone dentro dele
+    const decreaseBtn = e.target.closest('.quantity-decrease');
+    const increaseBtn = e.target.closest('.quantity-increase');
+    const removeBtn = e.target.closest('.cart-item-remove-btn');
+
+    let actionTaken = false;
+
+    if (decreaseBtn) {
+        const id = decreaseBtn.dataset.id;
+        updateCartItemQuantity(id, -1, true);
+        actionTaken = true;
+    } else if (increaseBtn) {
+        const id = increaseBtn.dataset.id;
+        updateCartItemQuantity(id, 1, true);
+        actionTaken = true;
+    } else if (removeBtn) {
+        const id = removeBtn.dataset.id;
+        removeFromCart(id);
+        actionTaken = true;
+    }
+
+    // Só atualiza a tela se uma ação foi realmente executada
+    if (actionTaken) {
+        updateCartDisplay();
+    }
+});
+
+cartItems.addEventListener('change', (e) => {
+    if (e.target.classList.contains('cart-item-quantity')) {
+        const id = e.target.dataset.id;
+        const newQuantity = parseInt(e.target.value);
+        updateCartItemQuantity(id, newQuantity); // Alteração absoluta
+        updateCartDisplay();
+    }
+});
+
   // Lógica do menu de usuário
   if (userMenuToggle) {
     userMenuToggle.addEventListener("click", (e) => {
@@ -306,7 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
       element: document.getElementById("pdv-section"),
       title: "Ponto de Venda (PDV)",
       onShow: () => {
-        loadProductsGrid();
+        loadProductsToViews();
         loadSaleClientSelect();
       },
     },
@@ -1258,139 +1327,70 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // PDV - Carregar produtos na grade
-  function loadProductsGrid() {
+ // PDV - Carregar produtos para as visualizações (Grid e Lista) - VERSÃO ATUALIZADA
+function loadProductsToViews() {
     productsGrid.innerHTML = "";
+    productsList.innerHTML = "";
 
-    if (products.length === 0) {
-      productsGrid.innerHTML =
-        '<p style="text-align: center; padding: 20px; color: #666;">Nenhum produto cadastrado</p>';
-      return;
-    }
-
-    // Filtrar produtos por tipo selecionado
+    const searchTerm = productSearch.value.toLowerCase();
     const selectedType = productTypeFilter.value;
-    let filteredProducts = products;
+    
+    let filteredProducts = products.filter(product => product.stock > 0);
 
     if (selectedType !== "all") {
-      filteredProducts = products.filter(
-        (product) => product.type === selectedType && product.stock > 0
-      );
-    } else {
-      filteredProducts = products.filter((product) => product.stock > 0);
+        filteredProducts = filteredProducts.filter(product => product.type === selectedType);
     }
 
+    if (searchTerm) {
+        filteredProducts = filteredProducts.filter(product =>
+            product.description.toLowerCase().includes(searchTerm) ||
+            product.barcode.toLowerCase().includes(searchTerm)
+        );
+    }
+    
     if (filteredProducts.length === 0) {
-      productsGrid.innerHTML =
-        '<p style="text-align: center; padding: 20px; color: #666;">Nenhum produto disponível para venda</p>';
-      return;
+        const noProductMessage = '<p style="text-align: center; padding: 20px; color: #666;">Nenhum produto encontrado</p>';
+        productsGrid.innerHTML = noProductMessage;
+        productsList.innerHTML = noProductMessage;
+        return;
     }
 
-    filteredProducts.forEach((product) => {
-      const card = document.createElement("div");
-      card.className = "product-card";
-      card.setAttribute("data-id", product.id);
-
-      // Adicionar imagem do produto no PDV
-      let imageHtml = "";
-      if (product.image) {
-        imageHtml = `<img src="${product.image}" class="product-image-pdv" alt="${product.description}">`;
-      } else {
-        imageHtml = `<div class="no-image">Sem imagem</div>`;
-      }
-
-      card.innerHTML = `
-                    ${imageHtml}
-                    <h4>${product.description}</h4>
-                    <div class="price">R$ ${product.price.toFixed(2)}</div>
-                    <div class="stock">Estoque: ${product.stock} ${getUnitText(
-        product.unit
-      )}</div>
-                    <div>${getTypeBadge(product.type)}</div>
-                `;
-
-      card.addEventListener("click", () => {
-        addToCart(product);
-      });
-
-      productsGrid.appendChild(card);
-    });
-  }
-
-  // PDV - Filtrar produtos por tipo
-  if (productTypeFilter) {
-    productTypeFilter.addEventListener("change", loadProductsGrid);
-  }
-
-  // PDV - Buscar produtos
-  if (searchProductPdvBtn) {
-    searchProductPdvBtn.addEventListener("click", () => {
-      const searchTerm = productSearch.value.toLowerCase();
-
-      if (!searchTerm) {
-        loadProductsGrid();
-        return;
-      }
-
-      const selectedType = productTypeFilter.value;
-      let filteredProducts = products;
-
-      if (selectedType !== "all") {
-        filteredProducts = products.filter(
-          (product) =>
-            product.type === selectedType &&
-            product.stock > 0 &&
-            (product.description.toLowerCase().includes(searchTerm) ||
-              product.barcode.toLowerCase().includes(searchTerm))
-        );
-      } else {
-        filteredProducts = products.filter(
-          (product) =>
-            product.stock > 0 &&
-            (product.description.toLowerCase().includes(searchTerm) ||
-              product.barcode.toLowerCase().includes(searchTerm))
-        );
-      }
-
-      productsGrid.innerHTML = "";
-
-      if (filteredProducts.length === 0) {
-        productsGrid.innerHTML =
-          '<p style="text-align: center; padding: 20px; color: #666;">Nenhum produto encontrado</p>';
-        return;
-      }
-
-      filteredProducts.forEach((product) => {
+    filteredProducts.forEach(product => {
+        const imageHtml = product.image 
+            ? `<img src="${product.image}" alt="${product.description}">`
+            : `<div class="no-image">Sem imagem</div>`;
+        
+        // --- Criar Card para a Grade ---
         const card = document.createElement("div");
         card.className = "product-card";
-        card.setAttribute("data-id", product.id);
-
-        // Adicionar imagem do produto no PDV
-        let imageHtml = "";
-        if (product.image) {
-          imageHtml = `<img src="${product.image}" class="product-image-pdv" alt="${product.description}">`;
-        } else {
-          imageHtml = `<div class="no-image">Sem imagem</div>`;
-        }
-
+        card.dataset.id = product.id;
         card.innerHTML = `
-                        ${imageHtml}
-                        <h4>${product.description}</h4>
-                        <div class="price">R$ ${product.price.toFixed(2)}</div>
-                        <div class="stock">Estoque: ${
-                          product.stock
-                        } ${getUnitText(product.unit)}</div>
-                        <div>${getTypeBadge(product.type)}</div>
-                    `;
-
-        card.addEventListener("click", () => {
-          addToCart(product);
-        });
-
+            ${imageHtml.replace('>', ' class="product-image-pdv">')}
+            <h4>${product.description}</h4>
+            <div class="price">R$ ${product.price.toFixed(2)}</div>
+            <div class="stock">Estoque: ${product.stock} ${getUnitText(product.unit)}</div>
+            <div class="product-card-badge">${getTypeBadge(product.type)}</div> `;
+        card.addEventListener("click", () => addToCart(product));
         productsGrid.appendChild(card);
-      });
+
+        // --- Criar Item para a Lista ---
+        const listItem = document.createElement("div");
+        listItem.className = "product-list-item";
+        listItem.dataset.id = product.id;
+        listItem.innerHTML = `
+            ${imageHtml.replace('>', ' class="product-list-item-image">')}
+            <div class="product-list-item-info">
+                <h4>${product.description}</h4>
+                <div class="product-list-item-details">
+                    <span><strong>Preço:</strong> R$ ${product.price.toFixed(2)}</span>
+                    <span><strong>Estoque:</strong> ${product.stock} ${getUnitText(product.unit)}</span>
+                </div>
+            </div>
+            <div class="product-list-item-badge">${getTypeBadge(product.type)}</div> `;
+        listItem.addEventListener("click", () => addToCart(product));
+        productsList.appendChild(listItem);
     });
-  }
+}
 
   // PDV - Adicionar produto ao carrinho
   function addToCart(product) {
@@ -1428,105 +1428,64 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCartDisplay();
   }
 
-  // PDV - Atualizar exibição do carrinho
-  function updateCartDisplay() {
-    cartItems.innerHTML = "";
+  // PDV - ATUALIZAR EXIBIÇÃO DO CARRINHO (VERSÃO COM ETIQUETAS)
+function updateCartDisplay() {
+    const cartBody = document.querySelector('#cart-items');
+    cartBody.innerHTML = ""; // Limpa o corpo do carrinho
 
     if (cart.length === 0) {
-      cartItems.innerHTML =
-        '<p style="text-align: center; padding: 20px; color: #666;">Carrinho vazio</p>';
-      cartSubtotal.textContent = "R$ 0,00";
-      cartDiscount.textContent = "R$ 0,00";
-      cartTotal.textContent = "R$ 0,00";
-      return;
-    }
-
-    let subtotal = 0;
-
-    cart.forEach((item) => {
-      const itemTotal = item.price * item.quantity;
-      subtotal += itemTotal;
-
-      const cartItem = document.createElement("div");
-      cartItem.className = "cart-item";
-
-      cartItem.innerHTML = `
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">${item.name}</div>
-                        <div class="cart-item-details">
-                            <span>R$ ${item.price.toFixed(2)} x ${
-        item.quantity
-      } ${getUnitText(item.unit)}</span>
-                            <span>R$ ${itemTotal.toFixed(2)}</span>
-                        </div>
-                        <div>${getTypeBadge(item.type)}</div>
-                    </div>
-                    <div class="cart-item-actions">
-                        <input type="number" class="cart-item-quantity" value="${
-                          item.quantity
-                        }" min="1" max="${getProductStock(item.id)}" data-id="${
-        item.id
-      }">
-                        <button class="remove-item" data-id="${
-                          item.id
-                        }">×</button>
-                    </div>
-                `;
-
-      cartItems.appendChild(cartItem);
-    });
-
-    // Adicionar eventos aos inputs de quantidade e botões de remoção
-    document.querySelectorAll(".cart-item-quantity").forEach((input) => {
-      input.addEventListener("change", (e) => {
-        const id = e.target.getAttribute("data-id");
-        const newQuantity = parseInt(e.target.value);
-        const maxStock = getProductStock(id);
-
-        if (newQuantity > maxStock) {
-          showNotification(
-            `Estoque insuficiente. Disponível: ${maxStock}`,
-            "error"
-          );
-          e.target.value = maxStock;
-          updateCartItemQuantity(id, maxStock);
-        } else if (newQuantity < 1) {
-          removeFromCart(id);
-        } else {
-          updateCartItemQuantity(id, newQuantity);
-        }
-
-        updateCartDisplay();
-      });
-    });
-
-    document.querySelectorAll(".remove-item").forEach((button) => {
-      button.addEventListener("click", (e) => {
-        const id = e.target.getAttribute("data-id");
-        removeFromCart(id);
-        updateCartDisplay();
-      });
-    });
-
-    // Calcular desconto baseado no tipo selecionado
-    const discountValue = parseFloat(discountInput.value) || 0;
-    const discountType = document.querySelector(
-      'input[name="discount-type"]:checked'
-    ).value;
-
-    let discount = 0;
-    if (discountType === "percent") {
-      discount = (subtotal * discountValue) / 100;
+        cartBody.innerHTML = '<p class="empty-cart-message">Carrinho vazio</p>';
     } else {
-      discount = discountValue;
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            const cartItemEl = document.createElement("div");
+            cartItemEl.className = "cart-item";
+
+            // Nova estrutura do item com botões e a ETIQUETA
+            cartItemEl.innerHTML = `
+                <div class="cart-item-info">
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-details">
+                        R$ ${item.price.toFixed(2)} x ${item.quantity} ${getUnitText(item.unit)}
+                    </div>
+                    <div class="cart-item-total">
+                        <strong>R$ ${itemTotal.toFixed(2)}</strong>
+                    </div>
+                    ${getTypeBadge(item.type)} </div>
+                <div class="cart-item-controls">
+                    <button class="quantity-btn quantity-decrease" data-id="${item.id}">-</button>
+                    <input type="number" class="cart-item-quantity" value="${item.quantity}" min="1" data-id="${item.id}" readonly>
+                    <button class="quantity-btn quantity-increase" data-id="${item.id}">+</button>
+                    <button class="cart-item-remove-btn" data-id="${item.id}" title="Remover Item">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </div>
+            `;
+            cartBody.appendChild(cartItemEl);
+        });
+    }
+    updateCartSummary();
+}
+
+// Calcula e atualiza o resumo do carrinho (subtotal, desconto, total)
+function updateCartSummary() {
+    const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const discountValue = parseFloat(discountInput.value) || 0;
+    const discountType = document.querySelector('input[name="discount-type"]:checked').value;
+
+    let discountAmount = 0;
+    if (discountType === 'percent') {
+        discountAmount = (subtotal * discountValue) / 100;
+    } else {
+        discountAmount = discountValue;
     }
 
-    const total = subtotal - discount;
+    const total = subtotal - discountAmount;
 
     cartSubtotal.textContent = `R$ ${subtotal.toFixed(2)}`;
-    cartDiscount.textContent = `R$ ${discount.toFixed(2)}`;
+    cartDiscount.textContent = `R$ ${discountAmount.toFixed(2)}`;
     cartTotal.textContent = `R$ ${total.toFixed(2)}`;
-  }
+}
 
   // PDV - Obter estoque do produto
   function getProductStock(productId) {
@@ -1535,17 +1494,35 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // PDV - Atualizar quantidade do item no carrinho
-  function updateCartItemQuantity(productId, quantity) {
-    const item = cart.find((item) => item.id === productId);
-    if (item) {
-      item.quantity = quantity;
-    }
-  }
+  // PDV - Atualiza a quantidade do item no carrinho (ATUALIZADA)
+function updateCartItemQuantity(productId, change, isRelative = false) {
+    const item = cart.find(item => item.id === productId);
+    if (!item) return;
 
-  // PDV - Remover item do carrinho
-  function removeFromCart(productId) {
-    cart = cart.filter((item) => item.id !== productId);
-  }
+    const product = products.find(p => p.id === productId);
+    const maxStock = product ? product.stock : 0;
+
+    let newQuantity;
+    if (isRelative) {
+        newQuantity = item.quantity + change;
+    } else {
+        newQuantity = change;
+    }
+
+    if (newQuantity > maxStock) {
+        showNotification(`Estoque máximo atingido: ${maxStock}`, 'error');
+        item.quantity = maxStock;
+    } else if (newQuantity < 1) {
+        removeFromCart(productId);
+    } else {
+        item.quantity = newQuantity;
+    }
+}
+
+// PDV - Remover item do carrinho (ATUALIZADA)
+function removeFromCart(productId) {
+    cart = cart.filter(item => item.id !== productId);
+}
 
   // PDV - Atualizar desconto
   if (discountInput) {

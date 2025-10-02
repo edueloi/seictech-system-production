@@ -469,26 +469,35 @@
             <div id="pdv-section" class="hidden">
                 <div class="pdv-main">
                     <div class="card">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Buscar Produto</label>
-                                <input type="text" id="product-search" placeholder="Código ou descrição...">
+                        <div class="pdv-controls">
+                            <div class="search-and-filter">
+                                <div class="form-group">
+                                    <label>Buscar Produto</label>
+                                    <input type="text" id="product-search" placeholder="Código ou descrição...">
+                                </div>
+                                <div class="form-group">
+                                    <label>Filtrar por Tipo</label>
+                                    <select id="product-type-filter">
+                                        <option value="all">Todos os Tipos</option>
+                                        <option value="finished">Produto Acabado</option>
+                                        <option value="intermediate">Produto Intermediário</option>
+                                        <option value="supply">Insumo</option>
+                                    </select>
+                                </div>
+                                <button type="button" id="search-product-pdv-btn" class="btn"><i class="bi bi-search"></i></button>
                             </div>
-                            <div class="form-group">
-                                <label>Filtrar por Tipo</label>
-                                <select id="product-type-filter">
-                                    <option value="all">Todos os Tipos</option>
-                                    <option value="finished">Produto Acabado</option>
-                                    <option value="intermediate">Produto Intermediário</option>
-                                    <option value="supply">Insumo</option>
-                                </select>
+                            <div class="view-switcher">
+                                <button id="grid-view-btn" class="btn active"><i class="bi bi-grid-3x3-gap-fill"></i></button>
+                                <button id="list-view-btn" class="btn"><i class="bi bi-list-ul"></i></button>
                             </div>
-                            <button type="button" id="search-product-pdv-btn" class="btn" style="align-self: end;"><i class="bi bi-search"></i></button>
                         </div>
                     </div>
-                    <div class="products-grid-container">
-                        <div id="products-grid">
-                            <!-- Produtos para venda aqui -->
+                    <div class="products-display-container">
+                        <div id="products-grid" class="products-view active">
+                            <!-- Produtos para venda aqui (Grid) -->
+                        </div>
+                        <div id="products-list" class="products-view">
+                            <!-- Produtos para venda aqui (Lista) -->
                         </div>
                     </div>
                 </div>
@@ -502,7 +511,21 @@
                             <span>Subtotal</span>
                             <span id="cart-subtotal">R$ 0,00</span>
                         </div>
-                        <div class="summary-row">
+                        <div class="form-row">
+                        
+                            <div class="form-group">
+                                <label>Tipo de Desconto</label>
+                                <div class="radio-group" style="margin-top: 0;">
+                                    <input type="radio" id="discount-type-value" name="discount-type" value="value" checked> <label for="discount-type-value">Valor (R$)</label>
+                                    <input type="radio" id="discount-type-percent" name="discount-type" value="percent"> <label for="discount-type-percent">Percentual (%)</label>
+                                </div>
+                                <div class="form-group">
+                                <label>Desconto</label>
+                                <input type="number" id="discount" value="0" min="0">
+                            </div>
+                            </div>
+                        </div>
+                        <div style="border-bottom: 2px solid var(--cinza-borda); padding: 12px 0;" class="summary-row">
                             <span>Desconto</span>
                             <span id="cart-discount">R$ 0,00</span>
                         </div>
@@ -513,21 +536,8 @@
                     </div>
                     <div class="cart-actions">
                         <div class="form-group">
-                            <label>Cliente</label>
+                            <label>Cliente (Opcional)</label>
                             <select id="sale-client"></select>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Desconto</label>
-                                <input type="number" id="discount" value="0" min="0">
-                            </div>
-                            <div class="form-group">
-                                <label>Tipo</label>
-                                <div class="radio-group" style="margin-top: 0;">
-                                    <input type="radio" id="discount-type-value" name="discount-type" value="value" checked> <label for="discount-type-value">R$</label>
-                                    <input type="radio" id="discount-type-percent" name="discount-type" value="percent"> <label for="discount-type-percent">%</label>
-                                </div>
-                            </div>
                         </div>
                         <div class="form-group">
                             <label>Forma de Pagamento</label>
@@ -538,7 +548,7 @@
                                 <option value="credit">Cartão de Crédito</option>
                             </select>
                         </div>
-                        <button id="finalize-sale" class="btn btn-success" style="width: 100%;"><i class="bi bi-check-all"></i> Finalizar Venda</button>
+                        <button id="finalize-sale" class="btn btn-success" style="width: 100%; margin-top: 15px"><i class="bi bi-check-all"></i> Finalizar Venda</button>
                         <button id="clear-cart" class="btn btn-danger" style="width: 100%; margin-top: 0.5rem;"><i class="bi bi-trash"></i> Limpar Carrinho</button>
                     </div>
                 </div>
